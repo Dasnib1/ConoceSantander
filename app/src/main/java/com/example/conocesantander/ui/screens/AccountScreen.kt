@@ -16,5 +16,27 @@ fun AccountScreen(){
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Text(text = "Account")
+        /*
+        AuthenticationManager.signIn(this, email, password,
+    onSuccess = {
+        // Acciones después de iniciar sesión exitosamente
+        Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
+    },
+    onFailure = {
+        // Acciones en caso de error al iniciar sesión
+        Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
+    }
+)
+
+AuthenticationManager.signUp(this, email, password,
+    onSuccess = {
+        Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+    },
+    onFailure = {
+        // Acciones en caso de error al registrar
+        Toast.makeText(this, "Error al registrar el usuario", Toast.LENGTH_SHORT).show()
+    }
+)
+         */
     }
 }
