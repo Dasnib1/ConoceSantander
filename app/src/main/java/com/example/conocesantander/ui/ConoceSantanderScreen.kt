@@ -3,6 +3,7 @@ package com.example.conocesantander.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,17 +11,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -58,65 +59,6 @@ fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit){
     )
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ConoceSantanderTopAppBar(
-    darkTheme: Boolean,
-    onThemeUpdated: (Boolean) -> Unit
-) {
-    val iconResId = rememberSaveable { mutableStateOf(R.drawable.dark_mode_36) }
-
-        TopAppBar(
-            title = {
-                Text(text = "logo")
-            },
-            actions = {
-                IconButton(onClick = {
-                    onThemeUpdated(!darkTheme)
-
-                    iconResId.value = if (darkTheme) {
-                        R.drawable.dark_mode_36
-                    } else {
-                        R.drawable.light_mode_36
-                    }
-                }) {
-                    val xmlPainter: Painter = painterResource(iconResId.value)
-
-                    Image(
-                        painter = xmlPainter,
-                        contentDescription = "Toggle Theme",
-                    )
-                }
-            }
-        )
-
-}
-
-
-@Composable
-fun ConoceSantanderBottomNavBar(
-    selectedDestination: String,
-    navigateMyScreens: (Screens) -> Unit
-) {
-
-        NavigationBar(modifier = Modifier.fillMaxWidth()) {
-            DESTINATIONS.forEach { destinations ->
-                NavigationBarItem(
-                    selected = selectedDestination == destinations.route,
-                    onClick = { navigateMyScreens(destinations) },
-                    icon = {
-                        Icon(
-                            imageVector = destinations.selectedIcon,
-                            contentDescription = stringResource(id = destinations.iconTextId),
-                            modifier = Modifier.size(36.dp)
-                        )
-                    }
-                )
-            }
-        }
-
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -171,5 +113,78 @@ fun MyAppContent(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ConoceSantanderTopAppBar(
+    darkTheme: Boolean,
+    onThemeUpdated: (Boolean) -> Unit
+) {
+    val iconResId = rememberSaveable { mutableStateOf(R.drawable.dark_mode_36) }
+    val logo = rememberSaveable { mutableStateOf(R.drawable.conocesantander_high_resolution_logo_black_transparent) }
+
+    TopAppBar(
+        title = {
+            logo.value = if (darkTheme) {
+                R.drawable.conocesantander_high_resolution_logo_white_transparent
+            } else {
+                R.drawable.conocesantander_high_resolution_logo_black_transparent
+            }
+
+            Image(
+                painter = painterResource(id = logo.value),
+                contentDescription = "Logo de Conoce Santander",
+                modifier = Modifier
+                    .size(width = 270.dp, height = 40.dp)
+                    .aspectRatio(16f / 9f)
+            )
+        },
+        actions = {
+            IconButton(onClick = {
+                onThemeUpdated(!darkTheme)
+
+                iconResId.value = if (darkTheme) {
+                    R.drawable.dark_mode_36
+                } else {
+                    R.drawable.light_mode_36
+                }
+            }) {
+                val xmlPainter: Painter = painterResource(iconResId.value)
+
+                Image(
+                    painter = xmlPainter,
+                    contentDescription = "Toggle Theme",
+                )
+            }
+        },
+        colors = TopAppBarDefaults.smallTopAppBarColors(MaterialTheme.colorScheme.surfaceVariant)
+    )
+
+}
+
+
+@Composable
+fun ConoceSantanderBottomNavBar(
+    selectedDestination: String,
+    navigateMyScreens: (Screens) -> Unit
+) {
+
+    NavigationBar(modifier = Modifier.fillMaxWidth()) {
+        DESTINATIONS.forEach { destinations ->
+            NavigationBarItem(
+                selected = selectedDestination == destinations.route,
+                onClick = { navigateMyScreens(destinations) },
+                icon = {
+                    Icon(
+                        imageVector = destinations.selectedIcon,
+                        contentDescription = stringResource(id = destinations.iconTextId),
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            )
+        }
+    }
+
 }
 

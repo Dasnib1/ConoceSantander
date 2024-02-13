@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "512566201730",
+    "project_id": "conocessantander",
+    "storage_bucket": "conocessantander.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:512566201730:android:e41729b64d92a7fd7b139b",
+        "android_client_info": {
+          "package_name": "com.example.conocesantander"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw0hOnd5wbMOHunYY3gwaq7ymHvGdxvlI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
