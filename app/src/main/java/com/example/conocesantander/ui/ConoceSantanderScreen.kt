@@ -38,10 +38,11 @@ import com.example.conocesantander.ui.screens.FavouriteScreen
 import com.example.conocesantander.ui.screens.HomeScreen
 import com.example.conocesantander.ui.screens.MapScreen
 import com.example.conocesantander.ui.screens.SearchScreen
+import com.google.android.libraries.places.api.net.PlacesClient
 
 
 @Composable
-fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit){
+fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit, placesClient: PlacesClient){
 
     val navController = rememberNavController()
     val navigateAction = remember(navController) {
@@ -55,7 +56,8 @@ fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit){
         selectedDestination = selectedDestination,
         navigateMyScreens = navigateAction::navigateTo,
         darkTheme = darkTheme,
-        onThemeUpdated = onThemeUpdated
+        onThemeUpdated = onThemeUpdated,
+        placesClient = placesClient
     )
 }
 
@@ -68,7 +70,8 @@ fun MyAppContent(
     selectedDestination: String,
     navigateMyScreens: (Screens) -> Unit,
     darkTheme: Boolean,
-    onThemeUpdated: (Boolean) -> Unit
+    onThemeUpdated: (Boolean) -> Unit,
+    placesClient: PlacesClient
 ) {
     Scaffold(
         topBar = {
@@ -90,7 +93,7 @@ fun MyAppContent(
                     startDestination = MyAppRoute.HOME,
                 ) {
                     composable(MyAppRoute.HOME) {
-                        HomeScreen()
+                        HomeScreen(placesClient)
                     }
                     composable(MyAppRoute.MAP) {
                         MapScreen()

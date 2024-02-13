@@ -1,7 +1,9 @@
 package com.example.conocesantander
 
+import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +22,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.google.android.gms.common.api.ApiException
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FetchPlaceResponse
 
 
 class MainActivity : ComponentActivity() {
@@ -33,20 +40,41 @@ class MainActivity : ComponentActivity() {
                 Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
             }
         }
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Define a variable to hold the Places API key.
+        val apiKey = BuildConfig.PLACES_API_KEY
+
+        // Log an error if apiKey is not set.
+        if (apiKey.isEmpty() || apiKey == "DEFAULT_API_KEY") {
+            Log.e("Places test", "No api key")
+            finish()
+            return
+        }
+
+        // Initialize the SDK
+        Places.initializeWithNewPlacesApiEnabled(applicationContext, apiKey)
+
+        // Create a new PlacesClient instance
+        val placesClient = Places.createClient(this)
+
         setContent {
             var darkTheme by rememberSaveable { mutableStateOf(false) }
             var locationPermissionGranted by rememberSaveable { mutableStateOf(false) }
 
-            ConoceSantanderTheme(darkTheme = darkTheme) {
+            ConoceSantanderTheme(darkTheme) {
 
                 // Resto de tu UI aquí
                 ConoceSantanderApp(
                     darkTheme = darkTheme,
                     onThemeUpdated = { updatedTheme ->
-                        //darkTheme = updatedTheme
-                    }
+                        darkTheme = updatedTheme
+                    },
+                    placesClient = placesClient
                 )
             }
         }
