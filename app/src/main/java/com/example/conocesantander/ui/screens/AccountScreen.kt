@@ -41,6 +41,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.conocesantander.R
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,9 +70,9 @@ fun AccountScreen(){
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(onClick = {
-            // Lógica para el botón de registro / inicio de sesión
+            signUp(username, password)
         }) {
-            Text("Registro / Iniciar Sesión")
+            Text("Registro")
         }
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -84,7 +86,15 @@ fun AccountScreen(){
         }
     }
 }
-
+fun signUp(email: String, password: String) {
+    try {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+        // El usuario se ha registrado correctamente
+    } catch (e: Exception) {
+        // Manejar errores durante el registro
+        println("Error al registrar al usuario: ${e.message}")
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordTextField(
