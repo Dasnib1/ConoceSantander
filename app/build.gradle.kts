@@ -65,12 +65,12 @@ dependencies {
 
     // Firebase
     implementation("androidx.compose.runtime:runtime-livedata:1.0.5")
-    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
-    implementation("com.google.firebase:firebase-analytics")
+
+    // Maps SDK for Android
+    implementation ("com.google.android.gms:play-services-maps:18.2.0")
+    implementation ("com.google.maps.android:maps-compose:2.11.4")
     implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
 
-    // Maps
-    implementation("com.google.maps:google-maps-services:0.15.0")
 
 
     testImplementation("junit:junit:4.13.2")
