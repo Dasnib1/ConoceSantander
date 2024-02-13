@@ -52,7 +52,6 @@ android {
     }
 }
 
-
 dependencies {
 
     implementation("androidx.core:core-ktx:1.9.0")
@@ -67,12 +66,13 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
     implementation("androidx.compose.runtime:runtime-livedata:1.0.5")
-
-    // Maps SDK for Android
+    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
     implementation ("com.google.android.gms:play-services-maps:18.2.0")
     implementation ("com.google.maps.android:maps-compose:2.11.4")
-    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
-    //implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
+
 
 
     testImplementation("junit:junit:4.13.2")
