@@ -72,8 +72,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-maps:18.2.0")
     implementation ("com.google.maps.android:maps-compose:2.11.4")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
-
-
+    implementation("com.google.maps:google-maps-services:0.15.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

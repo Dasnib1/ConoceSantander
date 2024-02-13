@@ -55,7 +55,7 @@ fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit){
         selectedDestination = selectedDestination,
         navigateMyScreens = navigateAction::navigateTo,
         darkTheme = darkTheme,
-        onThemeUpdated = onThemeUpdated
+        onThemeUpdated = onThemeUpdated,
     )
 }
 
@@ -68,7 +68,7 @@ fun MyAppContent(
     selectedDestination: String,
     navigateMyScreens: (Screens) -> Unit,
     darkTheme: Boolean,
-    onThemeUpdated: (Boolean) -> Unit
+    onThemeUpdated: (Boolean) -> Unit,
 ) {
     Scaffold(
         topBar = {
