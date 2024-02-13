@@ -63,11 +63,14 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.5.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
+    // Firebase
     implementation("androidx.compose.runtime:runtime-livedata:1.0.5")
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
 
+    // Maps
+    implementation("com.google.maps:google-maps-services:0.15.0")
 
 
     testImplementation("junit:junit:4.13.2")
