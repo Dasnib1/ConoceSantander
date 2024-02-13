@@ -3,7 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-
 }
 
 android {
@@ -52,6 +51,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation("androidx.core:core-ktx:1.9.0")
@@ -71,9 +71,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
     implementation ("com.google.android.gms:play-services-maps:18.2.0")
     implementation ("com.google.maps.android:maps-compose:2.11.4")
-    implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
-    implementation ("com.google.android.gms:play-services-location:18.0.0")
-
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
+    //implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
