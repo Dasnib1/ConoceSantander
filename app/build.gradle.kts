@@ -74,6 +74,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
     //implementation ("com.google.android.gms:play-services-maps:18.1.0")
     implementation ("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

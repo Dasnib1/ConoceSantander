@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.conocesantander.R
-import com.google.maps.model.PlaceType
 import kotlinx.coroutines.tasks.await
 
 @Composable
