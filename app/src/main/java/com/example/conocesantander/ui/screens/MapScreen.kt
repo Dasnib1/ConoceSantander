@@ -32,6 +32,7 @@ fun MapScreen(){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
+
         val santander = LatLng(43.4623, -3.80998)
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(santander, 13f)
@@ -46,4 +47,5 @@ fun MapScreen(){
         }
         Text(text = "Map")
     }
+
 }

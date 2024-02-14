@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.example.conocesantander"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -40,6 +40,8 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -75,6 +77,10 @@ dependencies {
     //implementation ("com.google.android.gms:play-services-maps:18.1.0")
     implementation ("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
+
+    // Google Places
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.10"))
+    implementation("com.google.android.libraries.places:places:3.3.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
