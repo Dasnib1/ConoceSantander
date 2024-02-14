@@ -45,6 +45,8 @@ fun MapScreen() {
                 val latLng = LatLng(location.latitude, location.longitude)
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 13f)
             }
+            Log.e("Locat", location.toString())
+
         } catch (e: Exception) {
             Log.e("MapScreen", "Error obtaining location: ${e.message}")
         }

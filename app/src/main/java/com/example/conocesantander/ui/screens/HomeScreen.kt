@@ -1,6 +1,8 @@
 package com.example.conocesantander.ui.screens
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,14 +48,42 @@ import androidx.compose.ui.unit.sp
 import com.example.conocesantander.BuildConfig
 import com.example.conocesantander.R
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.PlaceLikelihood
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.tasks.await
 
+@SuppressLint("MissingPermission")
 @Composable
 fun HomeScreen(placesClient: PlacesClient) {
+
+    val context = LocalContext.current
+    val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
+    var loc: Location = Location("provider_name")
+    loc.latitude = 37.7749 // Latitud de San Francisco, por ejemplo
+    loc.longitude = -122.4194
+
+
+    // Obtener la ubicación del usuario y actualizar la posición de la cámara
+    LaunchedEffect(Unit) {
+        try {
+            val location = fusedLocationProvider.lastLocation.await()
+            loc = location
+            Log.e("Locat", location.toString())
+
+        } catch (e: Exception) {
+            Log.e("MapScreen", "Error obtaining location: ${e.message}")
+        }
+    }
 
     /*Column(
         modifier = Modifier.fillMaxSize(),
@@ -62,6 +94,8 @@ fun HomeScreen(placesClient: PlacesClient) {
         encuentra(placesClient = placesClient)
     }*/
 
+    encuentra2(placesClient = placesClient, location = loc)
+    
     LazyColumn {
         item {
             RestaurantRecommendationCard()
@@ -116,6 +150,7 @@ fun RestaurantRecommendationCard() {
                 //}
                 }
             }
+            
         }
     }
 }
@@ -214,5 +249,46 @@ fun encuentra(placesClient: PlacesClient){
     Text(text = lugarNombre)
     Text(text = lugarDireccion)
 
-
 }
+
+@SuppressLint("MissingPermission")
+@Composable
+fun encuentra2(placesClient: PlacesClient, location: Location) {
+    Log.e("poto", "entra")
+    var lugaresEncontrados by remember { mutableStateOf<List<Place>>(emptyList()) }
+
+// Use fields to define the data types to return.
+    val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
+
+// Use the builder to create a FindCurrentPlaceRequest.
+    val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+
+
+    val placeResponse = placesClient.findCurrentPlace(request)
+    placeResponse.addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val response = task.result
+            for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods ?: emptyList()) {
+                Log.i(
+                    ContentValues.TAG,
+                    "Place '${placeLikelihood.place.name}' has likelihood: ${placeLikelihood.likelihood}"
+                )
+            }
+        } else {
+            val exception = task.exception
+            if (exception is ApiException) {
+                Log.e(ContentValues.TAG, "Place not found: ${exception.statusCode}")
+            }
+        }
+    }
+
+        // Muestra los lugares encontrados.
+        Column {
+            lugaresEncontrados.forEach { lugar ->
+                Text(text = lugar.name ?: "")
+                Text(text = lugar.address ?: "")
+                Text(text = "Valoraciones: ${lugar.userRatingsTotal}")
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
