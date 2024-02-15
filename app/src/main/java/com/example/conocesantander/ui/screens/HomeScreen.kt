@@ -54,6 +54,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.PlaceLikelihood
+import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
@@ -254,15 +255,22 @@ fun encuentra(placesClient: PlacesClient){
 @SuppressLint("MissingPermission")
 @Composable
 fun encuentra2(placesClient: PlacesClient, location: Location) {
-    Log.e("poto", "entra")
     var lugaresEncontrados by remember { mutableStateOf<List<Place>>(emptyList()) }
 
-// Use fields to define the data types to return.
+    // Use fields to define the data types to return.
     val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
 
-// Use the builder to create a FindCurrentPlaceRequest.
+    // Use the builder to create a FindCurrentPlaceRequest.
     val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
 
+    // Set the location and radius for the request
+    request.locationBias = RectangularBounds.newInstance(
+        LatLng(location.latitude - 0.027, location.longitude - 0.027),
+        LatLng(location.latitude + 0.027, location.longitude + 0.027)
+    )
+
+    // Limit the number of results to 3
+    request.maxResults = 3
 
     val placeResponse = placesClient.findCurrentPlace(request)
     placeResponse.addOnCompleteListener { task ->
@@ -281,6 +289,7 @@ fun encuentra2(placesClient: PlacesClient, location: Location) {
             }
         }
     }
+
 
         // Muestra los lugares encontrados.
         Column {
