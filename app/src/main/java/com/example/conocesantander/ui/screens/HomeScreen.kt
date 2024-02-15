@@ -43,8 +43,6 @@ import com.example.conocesantander.ui.classes.PlacesClient.create
 import com.example.conocesantander.ui.classes.Restaurant
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
@@ -56,19 +54,12 @@ import retrofit2.Response
 @Composable
 fun HomeScreen(placesClient: PlacesClient) {
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Home")
-        Encuentra3(placesClient = placesClient)
-    }
+    PlacesRecommendations()
 
 }
 @SuppressLint("MissingPermission")
 @Composable
-fun Encuentra3(placesClient: PlacesClient) {
+fun Encuentra3(placeType: String) {
     var restaurantesCercanos by remember { mutableStateOf<List<Restaurant>?>(null) }
     val context = LocalContext.current
     val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -89,7 +80,7 @@ fun Encuentra3(placesClient: PlacesClient) {
     val radius = 1000
 
     // Define el tipo de lugar (en este caso, restaurantes)
-    val type = "restaurant"
+    val type = placeType
 
     // Realiza la llamada a la API para obtener los restaurantes cercanos cuando se obtenga la ubicación
     LaunchedEffect(location) {
@@ -105,13 +96,16 @@ fun Encuentra3(placesClient: PlacesClient) {
     // Muestra los restaurantes cercanos si están disponibles
     restaurantesCercanos?.let { restaurantes ->
         if (restaurantes.isNotEmpty()) {
-            Column {
-                Text(text = "Restaurantes cercanos:")
                 restaurantes.forEach { restaurante ->
-                    Text(text = restaurante.name)
-                    Text(text = "Rating: ${restaurante.rating ?: "No disponible"}")
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        RestaurantCard(restaurante.name, restaurante.vicinity, restaurante.rating.toString())
+                        //Text(text = restaurante.name)
+                        //Text(text = "Rating: ${restaurante.rating ?: "No disponible"}")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
                 }
-            }
+
         } else {
             Text(text = "No se encontraron restaurantes cercanos")
         }
@@ -180,7 +174,7 @@ fun encuentra(placesClient: PlacesClient){
 }
 
 @Composable
-fun RestaurantRecommendationCard() {
+fun PlacesRecommendations() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -188,45 +182,49 @@ fun RestaurantRecommendationCard() {
     ) {
         Box(
             modifier = Modifier
-                .background(color = Color(0xFFE6EE9C))
+                .background(color = Color(0xFFF1CF74))
                 .padding(16.dp)
         ) {
             Column {
                 Text(
                     text = "Recomendaciones de Restaurantes",
+                    style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Encuentra3(placeType = "restaurant")
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .padding(top = 420.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .background(color = Color(0xFF2F535E))
+                .padding(16.dp)
+        ) {
+            Column {
+                Text(
+                    text = "Recomendaciones de Museos",
                     style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //recommendationList.forEach { recommendation ->
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    RestaurantCard()
-
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                //}
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    //recommendationList.forEach { recommendation ->
-                    RestaurantCard()
-                    //}
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    //recommendationList.forEach { recommendation ->
-                    RestaurantCard()
-                    //}
-                }
+                Encuentra3(placeType = "museum")
             }
-
         }
     }
 }
 
 @Composable
-fun RestaurantCard() {
+fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String) {
     Card(
         modifier = Modifier
             .padding(end = 8.dp)
@@ -253,21 +251,21 @@ fun RestaurantCard() {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "recommendation.name",
+                    text = placeName,
                     style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "recommendation.address",
+                    text = placeAdress,
                     style = TextStyle(fontSize = 12.sp)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "recommendation.rating".toString(),
+                    text = placeRating,
                     style = TextStyle(fontSize = 12.sp)
                 )
 
