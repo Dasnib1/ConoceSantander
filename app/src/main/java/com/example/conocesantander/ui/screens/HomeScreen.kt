@@ -95,7 +95,9 @@ fun Encuentra3(placesClient: PlacesClient) {
     LaunchedEffect(location) {
         location?.let { loc ->
             fetchNearbyRestaurants(loc.latitude.toString() + "," + loc.longitude.toString(), radius, type) { nearbyRestaurants ->
-                restaurantesCercanos = nearbyRestaurants
+                restaurantesCercanos = nearbyRestaurants.sortedByDescending { it.rating ?: Float.MIN_VALUE }
+                    .take(3)
+
             }
         }
     }
@@ -107,6 +109,7 @@ fun Encuentra3(placesClient: PlacesClient) {
                 Text(text = "Restaurantes cercanos:")
                 restaurantes.forEach { restaurante ->
                     Text(text = restaurante.name)
+                    Text(text = "Rating: ${restaurante.rating ?: "No disponible"}")
                 }
             }
         } else {
