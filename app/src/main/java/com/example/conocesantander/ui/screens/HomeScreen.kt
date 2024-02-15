@@ -6,7 +6,6 @@ import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,22 +41,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.conocesantander.BuildConfig
 import com.example.conocesantander.R
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.PlaceLikelihood
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
-import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.maps.android.compose.rememberCameraPositionState
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logging
+import io.ktor.client.request.get
+import io.ktor.http.URLBuilder
+import io.ktor.http.takeFrom
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -94,7 +95,7 @@ fun HomeScreen(placesClient: PlacesClient) {
         encuentra(placesClient = placesClient)
     }*/
 
-    encuentra2(placesClient = placesClient, location = loc)
+    //encuentra2(placesClient = placesClient, location = loc)
     
     LazyColumn {
         item {
@@ -106,7 +107,51 @@ fun HomeScreen(placesClient: PlacesClient) {
         // Agrega aquí otras recomendaciones como hoteles, atracciones, etc.
     }
 
+    App()
+
+
+
 }
+
+
+@Composable
+fun PlaceList(places: List<Place>) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        for (place in places) {
+            Text(text = place.name)
+        }
+    }
+}
+
+val httpClient = HttpClient {
+    install(JsonFeature) {
+        serializer = KotlinxSerializer()
+    }
+}
+
+@Composable
+fun App() {
+    var places by remember { mutableStateOf<List<Place>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        places = getPlaces()
+    }
+
+    PlaceList(places)
+}
+
+
+
+suspend fun getPlaces(): List<Place> {
+    val url = URLBuilder().apply {
+        takeFrom("https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=cruise&location=-33.8670522%2C151.1957362&radius=1500&type=restaurant&key=AIzaSyC6c-q5MHbPXpisJgDeIce6Rkit2LZRlUk")
+    }
+
+    return withContext(Dispatchers.IO) {
+        httpClient.get(url.build())
+    }
+}
+
 
 
 @Composable
@@ -251,44 +296,3 @@ fun encuentra(placesClient: PlacesClient){
 
 }
 
-@SuppressLint("MissingPermission")
-@Composable
-fun encuentra2(placesClient: PlacesClient, location: Location) {
-    Log.e("poto", "entra")
-    var lugaresEncontrados by remember { mutableStateOf<List<Place>>(emptyList()) }
-
-// Use fields to define the data types to return.
-    val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
-
-// Use the builder to create a FindCurrentPlaceRequest.
-    val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
-
-
-    val placeResponse = placesClient.findCurrentPlace(request)
-    placeResponse.addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-            val response = task.result
-            for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods ?: emptyList()) {
-                Log.i(
-                    ContentValues.TAG,
-                    "Place '${placeLikelihood.place.name}' has likelihood: ${placeLikelihood.likelihood}"
-                )
-            }
-        } else {
-            val exception = task.exception
-            if (exception is ApiException) {
-                Log.e(ContentValues.TAG, "Place not found: ${exception.statusCode}")
-            }
-        }
-    }
-
-        // Muestra los lugares encontrados.
-        Column {
-            lugaresEncontrados.forEach { lugar ->
-                Text(text = lugar.name ?: "")
-                Text(text = lugar.address ?: "")
-                Text(text = "Valoraciones: ${lugar.userRatingsTotal}")
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-    }
