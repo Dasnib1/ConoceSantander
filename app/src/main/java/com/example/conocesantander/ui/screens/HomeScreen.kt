@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.location.Location
 import android.util.Log
+import android.widget.ScrollView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.BuildConfig
 import com.example.conocesantander.R
 import com.example.conocesantander.ui.classes.NearbySearchResponse
@@ -53,13 +55,25 @@ import retrofit2.Callback
 import retrofit2.Response
 @Composable
 fun HomeScreen(placesClient: PlacesClient) {
+    
+    LazyColumn {
+        item{
+            Encuentra3(placeType = "restaurant", placeTypeName ="Restaurantes")
+        }
+        /*item{
+            Encuentra3(placeType = "museum", color = Color(0xFF2F535E), placeTypeName ="Museos")
+        }
+        item{
+            Encuentra3(placeType = "cafe", color = Color(0xFFF1CF74), placeTypeName = "Parques")
+        }*/
+    }
 
-    PlacesRecommendations()
+
 
 }
 @SuppressLint("MissingPermission")
 @Composable
-fun Encuentra3(placeType: String) {
+fun Encuentra3(placeType: String, placeTypeName: String) {
     var restaurantesCercanos by remember { mutableStateOf<List<Restaurant>?>(null) }
     val context = LocalContext.current
     val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -96,15 +110,42 @@ fun Encuentra3(placeType: String) {
     // Muestra los restaurantes cercanos si están disponibles
     restaurantesCercanos?.let { restaurantes ->
         if (restaurantes.isNotEmpty()) {
-                restaurantes.forEach { restaurante ->
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        RestaurantCard(restaurante.name, restaurante.vicinity, restaurante.rating.toString())
-                        //Text(text = restaurante.name)
-                        //Text(text = "Rating: ${restaurante.rating ?: "No disponible"}")
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
 
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(color = LocalCustomColorsPalette.current.restaurant)
+                        .padding(16.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = "Recomendaciones de " + placeTypeName,
+                            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+
+                        restaurantes.forEach { restaurante ->
+                            Log.e("Place", restaurante.name)
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                RestaurantCard(
+                                    restaurante.name,
+                                    restaurante.vicinity,
+                                    restaurante.rating.toString()
+                                )
+                                //Text(text = restaurante.name)
+                                //Text(text = "Rating: ${restaurante.rating ?: "No disponible"}")
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                        }
+                    }
                 }
+            }
 
         } else {
             Text(text = "No se encontraron restaurantes cercanos")
@@ -173,55 +214,6 @@ fun encuentra(placesClient: PlacesClient){
 
 }
 
-@Composable
-fun PlacesRecommendations() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .background(color = Color(0xFFF1CF74))
-                .padding(16.dp)
-        ) {
-            Column {
-                Text(
-                    text = "Recomendaciones de Restaurantes",
-                    style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Encuentra3(placeType = "restaurant")
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .padding(top = 420.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .background(color = Color(0xFF2F535E))
-                .padding(16.dp)
-        ) {
-            Column {
-                Text(
-                    text = "Recomendaciones de Museos",
-                    style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Encuentra3(placeType = "museum")
-            }
-        }
-    }
-}
 
 @Composable
 fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String) {
