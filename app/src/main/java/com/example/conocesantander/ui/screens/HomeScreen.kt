@@ -73,22 +73,19 @@ import java.util.concurrent.ExecutionException
 @Composable
 fun HomeScreen(placesClient: PlacesClient, context: Context) {
 
+    //Photo(placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE", context)
 
-    val myImageView = ImageView(context)
-
-    Photo(placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE", context)
-
-    /*LazyColumn {
+    LazyColumn {
         item{
             Encuentra3(placeType = "restaurant", color = LocalCustomColorsPalette.current.restaurant, placeTypeName ="Restaurantes")
-        }
+        }/*
         item{
             Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos")
         }
         item{
             Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
-        }
-    }*/
+        }*/
+    }
 }
 
 @SuppressLint("MissingPermission")
@@ -155,8 +152,11 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
                                 RestaurantCard(
                                     restaurante.name,
                                     restaurante.vicinity,
-                                    restaurante.rating.toString()
-                                )
+                                    restaurante.rating.toString(),
+                                    restaurante.place_id,
+                                    context,
+                                    kmFromUser = 0
+                                    )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
 
@@ -234,7 +234,7 @@ fun encuentra(placesClient: PlacesClient){
 
 
 @Composable
-fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String) {
+fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String, placeId: String, context: Context, kmFromUser: Int) {
     Card(
         modifier = Modifier
             .padding(end = 8.dp)
@@ -247,15 +247,7 @@ fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String) 
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(100.dp)
-                    .fillMaxHeight()
-                    .clip(shape = RoundedCornerShape(4.dp)),
-                contentScale = ContentScale.Crop
-            )
+            Photo(placeId, context)
             Spacer(modifier = Modifier.width(8.dp))
             Column(
                 modifier = Modifier.weight(1f)
@@ -274,10 +266,19 @@ fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String) 
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = placeRating,
-                    style = TextStyle(fontSize = 12.sp)
-                )
+                Row {
+                    Text(
+                        text = placeRating,
+                        style = TextStyle(fontSize = 12.sp)
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = kmFromUser.toString(),
+                        style = TextStyle(fontSize = 12.sp)
+                    )
+                }
 
             }
             Spacer(modifier = Modifier.width(4.dp))
