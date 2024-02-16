@@ -12,4 +12,5 @@ interface PlacesService {
         @Query("type") type: String,
         @Query("key") apiKey: String
     ): Call<NearbySearchResponse>
+
 }

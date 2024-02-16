@@ -4,22 +4,23 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.location.Location
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.example.conocesantander.BuildConfig
 import com.example.conocesantander.ui.classes.NearbySearchResponse
 import com.example.conocesantander.ui.classes.PlacesClient.create
 import com.example.conocesantander.ui.classes.Restaurant
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
@@ -28,6 +29,12 @@ import kotlinx.coroutines.tasks.await
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Math.atan2
+import java.lang.Math.cos
+import java.lang.Math.round
+import java.lang.Math.sin
+import java.lang.Math.sqrt
+
 @Composable
 fun HomeScreen(placesClient: PlacesClient) {
 
@@ -85,6 +92,8 @@ fun Encuentra3(placesClient: PlacesClient) {
                 restaurantes.forEach { restaurante ->
                     Text(text = restaurante.name)
                     Text(text = "Rating: ${restaurante.rating ?: "No disponible"}")
+                    Text(text = "Distancia: ${calcularDistancia(location!!.latitude,
+                        location!!.longitude,restaurante.geometry.location.lat,restaurante.geometry.location.lng)  ?: "No disponible"} metros")
                 }
             }
         } else {
@@ -92,6 +101,21 @@ fun Encuentra3(placesClient: PlacesClient) {
         }
     }
 }
+
+fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Long {
+    val R = 6371
+
+    val latDistance = Math.toRadians(lat2 - lat1)
+    val lonDistance = Math.toRadians(lon2 - lon1)
+    val a = sin(latDistance / 2) * sin(latDistance / 2) +
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+            sin(lonDistance / 2) * sin(lonDistance / 2)
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    val distance = R * c
+
+    return round(distance * 100000) / 100
+}
+
 fun fetchNearbyRestaurants(
     location: String,
     radius: Int,

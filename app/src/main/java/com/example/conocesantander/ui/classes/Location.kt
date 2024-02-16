@@ -2,6 +2,7 @@ package com.example.conocesantander.ui.classes
 
 import android.provider.ContactsContract
 import com.google.android.libraries.places.api.model.OpeningHours
+import com.google.android.libraries.places.api.model.Review
 
 data class Location(
     val lat: Double,
@@ -11,12 +12,11 @@ data class Location(
 data class Geometry(
     val location: Location
 )
-
 data class Restaurant(
     val name: String,
     val vicinity: String,
     val geometry: Geometry,
-    val photos: List<ContactsContract.Contacts.Photo>? = null, // Lista de fotos del restaurante
+    val photoReferences: List<String>?, // Lista de fotos del restaurante
     val rating: Float? = null, // Calificación del restaurante
     val openingHours: OpeningHours? = null, // Horario de apertura del restaurante
     val website: String? = null, // Sitio web del restaurante
