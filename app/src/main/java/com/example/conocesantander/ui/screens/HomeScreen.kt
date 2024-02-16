@@ -1,9 +1,15 @@
 package com.example.conocesantander.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.ContentValues
+import android.content.ContentValues.TAG
+import android.content.Context
+import android.graphics.Bitmap
 import android.location.Location
+import android.provider.ContactsContract
 import android.util.Log
+import android.widget.ImageView
 import android.widget.ScrollView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -45,35 +54,46 @@ import com.example.conocesantander.ui.classes.PlacesClient.create
 import com.example.conocesantander.ui.classes.Restaurant
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Task
+import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPhotoRequest
+import com.google.android.libraries.places.api.net.FetchPhotoResponse
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.PlacesClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.concurrent.ExecutionException
+
 @Composable
-fun HomeScreen(placesClient: PlacesClient) {
-    
-    LazyColumn {
+fun HomeScreen(placesClient: PlacesClient, context: Context) {
+
+
+    val myImageView = ImageView(context)
+
+    Photo(placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE", context)
+
+    /*LazyColumn {
         item{
-            Encuentra3(placeType = "restaurant", placeTypeName ="Restaurantes")
-        }
-        /*item{
-            Encuentra3(placeType = "museum", color = Color(0xFF2F535E), placeTypeName ="Museos")
+            Encuentra3(placeType = "restaurant", color = LocalCustomColorsPalette.current.restaurant, placeTypeName ="Restaurantes")
         }
         item{
-            Encuentra3(placeType = "cafe", color = Color(0xFFF1CF74), placeTypeName = "Parques")
-        }*/
-    }
-
-
-
+            Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos")
+        }
+        item{
+            Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
+        }
+    }*/
 }
+
 @SuppressLint("MissingPermission")
 @Composable
-fun Encuentra3(placeType: String, placeTypeName: String) {
+fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
     var restaurantesCercanos by remember { mutableStateOf<List<Restaurant>?>(null) }
     val context = LocalContext.current
     val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -118,7 +138,7 @@ fun Encuentra3(placeType: String, placeTypeName: String) {
             ) {
                 Box(
                     modifier = Modifier
-                        .background(color = LocalCustomColorsPalette.current.restaurant)
+                        .background(color = color)
                         .padding(16.dp)
                 ) {
                     Column {
@@ -137,8 +157,6 @@ fun Encuentra3(placeType: String, placeTypeName: String) {
                                     restaurante.vicinity,
                                     restaurante.rating.toString()
                                 )
-                                //Text(text = restaurante.name)
-                                //Text(text = "Rating: ${restaurante.rating ?: "No disponible"}")
                             }
                             Spacer(modifier = Modifier.height(8.dp))
 
@@ -274,3 +292,43 @@ fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String) 
         }
     }
 }
+
+@Composable
+fun Photo(placeId: String, context: Context) {
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(placeId) {
+        try {
+            val placeFields = listOf(Place.Field.PHOTO_METADATAS)
+            val placeRequest = FetchPlaceRequest.newInstance(placeId, placeFields)
+            val placeResponse = Places.createClient(context).fetchPlace(placeRequest)
+            val place: Place = placeResponse.await().place
+
+            val photoMetadata = place.photoMetadatas?.get(0)
+
+            if (photoMetadata != null) {
+                val photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                    .build()
+                val photoResponse = Places.createClient(context).fetchPhoto(photoRequest)
+                val fetchedBitmap = photoResponse.await().bitmap
+                bitmap = fetchedBitmap
+            }
+        } catch (e: ExecutionException) {
+            // Handle exceptions
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            // Handle exceptions
+            e.printStackTrace()
+        }
+    }
+
+    if (bitmap != null) {
+        Image(
+            bitmap = bitmap!!.asImageBitmap(),
+            contentDescription = null,
+            modifier = Modifier.size(100.dp), // Adjust size as needed
+            contentScale = ContentScale.Crop
+        )
+    }
+}
+
