@@ -32,6 +32,10 @@ val md_theme_light_surfaceTint = Color(0xFF5C53A7)
 val md_theme_light_outlineVariant = Color(0xFFC9C5D0)
 val md_theme_light_scrim = Color(0xFF000000)
 
+// Cards
+val md_theme_light_restaurantes = Color(0xFFF9EC98)
+val md_theme_dark_restaurantes = Color(0xFFABA26F)
+
 val md_theme_dark_primary = Color(0xFFC7BFFF)
 val md_theme_dark_onPrimary = Color(0xFF2D2276)
 val md_theme_dark_primaryContainer = Color(0xFF443A8E)

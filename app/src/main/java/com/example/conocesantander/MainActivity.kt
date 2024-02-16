@@ -2,6 +2,7 @@ package com.example.conocesantander
 
 import android.Manifest
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -38,6 +39,8 @@ import com.google.android.libraries.places.api.net.FetchPlaceResponse
 
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    val context: Context = this
+
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -80,7 +83,8 @@ class MainActivity : ComponentActivity() {
                     onThemeUpdated = { updatedTheme ->
                         darkTheme = updatedTheme
                     },
-                    placesClient = placesClient
+                    placesClient = placesClient,
+                    context = context
                 )
             }
         }

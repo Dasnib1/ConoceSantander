@@ -13,6 +13,7 @@ data class Geometry(
     val location: Location
 )
 data class Restaurant(
+    val place_id : String,
     val name: String,
     val vicinity: String,
     val geometry: Geometry,
@@ -22,6 +23,7 @@ data class Restaurant(
     val website: String? = null, // Sitio web del restaurante
     val phoneNumber: String? = null // Número de teléfono del restaurante
 )
+
 
 data class NearbySearchResponse(
     val results: List<Restaurant>

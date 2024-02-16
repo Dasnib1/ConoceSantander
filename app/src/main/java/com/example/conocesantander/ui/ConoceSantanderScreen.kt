@@ -1,5 +1,6 @@
 package com.example.conocesantander.ui
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +43,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 
 
 @Composable
-fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit, placesClient: PlacesClient){
+fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit, placesClient: PlacesClient, context: Context){
 
     val navController = rememberNavController()
     val navigateAction = remember(navController) {
@@ -57,7 +58,8 @@ fun ConoceSantanderApp(darkTheme: Boolean, onThemeUpdated: (Boolean) -> Unit, pl
         navigateMyScreens = navigateAction::navigateTo,
         darkTheme = darkTheme,
         onThemeUpdated = onThemeUpdated,
-        placesClient = placesClient
+        placesClient = placesClient,
+        context = context
     )
 }
 
@@ -71,7 +73,8 @@ fun MyAppContent(
     navigateMyScreens: (Screens) -> Unit,
     darkTheme: Boolean,
     onThemeUpdated: (Boolean) -> Unit,
-    placesClient: PlacesClient
+    placesClient: PlacesClient,
+    context: Context
 ) {
     Scaffold(
         topBar = {
@@ -93,7 +96,7 @@ fun MyAppContent(
                     startDestination = MyAppRoute.HOME,
                 ) {
                     composable(MyAppRoute.HOME) {
-                        HomeScreen(placesClient)
+                        HomeScreen(placesClient, context)
                     }
                     composable(MyAppRoute.MAP) {
 

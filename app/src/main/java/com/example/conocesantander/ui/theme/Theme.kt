@@ -9,12 +9,38 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
+@Immutable
+data class CustomColorsPalette(
+    val restaurant: Color = Color.Unspecified,
+    val museum: Color = Color.Unspecified,
+    val park: Color = Color.Unspecified,
+)
+
+val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() }
+
+
+val OnLightCustomColorsPalette = CustomColorsPalette(
+    restaurant = Color(color = 0xFFE53935),
+    museum = Color(color = 0xFF1E88E5),
+    park = Color(color = 0xFF43A047),
+    )
+
+val OnDarkCustomColorsPalette = CustomColorsPalette(
+    restaurant = Color(color = 0xFFC62828),
+    museum = Color(color = 0xFF1A237E),
+    park = Color(color = 0xFF1B5E20),
+
+)
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -95,6 +121,11 @@ fun ConoceSantanderTheme(
         darkTheme -> DarkColors
         else -> LightColors
     }
+
+    val customColorsPalette =
+        if (darkTheme) OnDarkCustomColorsPalette
+        else OnLightCustomColorsPalette
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -103,8 +134,12 @@ fun ConoceSantanderTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
+    CompositionLocalProvider(
+        LocalCustomColorsPalette provides customColorsPalette
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            content = content
+        )
+    }
 }
