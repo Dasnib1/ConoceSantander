@@ -68,7 +68,13 @@ import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Math.atan2
+import java.lang.Math.cos
+import java.lang.Math.round
+import java.lang.Math.sin
+import java.lang.Math.sqrt
 import java.util.concurrent.ExecutionException
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreen(placesClient: PlacesClient, context: Context) {
@@ -155,8 +161,10 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
                                     restaurante.rating.toString(),
                                     restaurante.place_id,
                                     context,
-                                    kmFromUser = 0
+                                    calcularDistancia(location!!.latitude,
+                                        location!!.longitude,restaurante.geometry.location.lat,restaurante.geometry.location.lng
                                     )
+                                )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
 
@@ -275,7 +283,7 @@ fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String, 
                     Spacer(modifier = Modifier.width(16.dp))
 
                     Text(
-                        text = kmFromUser.toString(),
+                        text = kmFromUser.toString() +" metros",
                         style = TextStyle(fontSize = 12.sp)
                     )
                 }
@@ -332,4 +340,16 @@ fun Photo(placeId: String, context: Context) {
         )
     }
 }
+fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Int {
+    val R = 6371
 
+    val latDistance = Math.toRadians(lat2 - lat1)
+    val lonDistance = Math.toRadians(lon2 - lon1)
+    val a = sin(latDistance / 2) * sin(latDistance / 2) +
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+            sin(lonDistance / 2) * sin(lonDistance / 2)
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    val distance = R * c
+
+    return (distance * 1000).roundToInt()
+}
