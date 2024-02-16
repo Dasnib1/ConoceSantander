@@ -30,16 +30,15 @@ val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() 
 
 
 val OnLightCustomColorsPalette = CustomColorsPalette(
-    restaurant = Color(color = 0xFFE53935),
+    restaurant = Color(color = 0xFFF7AD9D),
     museum = Color(color = 0xFF1E88E5),
-    park = Color(color = 0xFF43A047),
-    )
+    park = Color(color = 0xFF43A047)
+)
 
 val OnDarkCustomColorsPalette = CustomColorsPalette(
-    restaurant = Color(color = 0xFFC62828),
+    restaurant = Color(color = 0xFFB63012),
     museum = Color(color = 0xFF1A237E),
-    park = Color(color = 0xFF1B5E20),
-
+    park = Color(color = 0xFF1B5E20)
 )
 
 private val LightColors = lightColorScheme(

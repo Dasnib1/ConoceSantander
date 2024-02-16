@@ -25,9 +25,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -75,16 +78,18 @@ fun HomeScreen(placesClient: PlacesClient, context: Context) {
 
     //Photo(placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE", context)
 
-    LazyColumn {
-        item{
+    Column (modifier = Modifier
+        .verticalScroll(rememberScrollState())
+        ) {
+        Row{
             Encuentra3(placeType = "restaurant", color = LocalCustomColorsPalette.current.restaurant, placeTypeName ="Restaurantes")
-        }/*
-        item{
+        }
+        Row{
             Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos")
         }
-        item{
+        Row{
             Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
-        }*/
+        }
     }
 }
 
@@ -268,7 +273,7 @@ fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String, 
 
                 Row {
                     Text(
-                        text = placeRating,
+                        text = placeRating + "⭐",
                         style = TextStyle(fontSize = 12.sp)
                     )
 
