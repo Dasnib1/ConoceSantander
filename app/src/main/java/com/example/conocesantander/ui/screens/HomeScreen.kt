@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.BuildConfig
 import com.example.conocesantander.R
@@ -80,28 +82,26 @@ import java.util.concurrent.ExecutionException
 import kotlin.math.roundToInt
 
 @Composable
-fun HomeScreen(placesClient: PlacesClient, context: Context) {
-
-    //Photo(placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE", context)
+fun HomeScreen(placesClient: PlacesClient, context: Context, navController: NavController) {
 
     Column (modifier = Modifier
         .verticalScroll(rememberScrollState())
         ) {
         Row{
-            Encuentra3(placeType = "restaurant", color = LocalCustomColorsPalette.current.restaurant, placeTypeName ="Restaurantes")
-        }
+            Encuentra3(placeType = "restaurant", color = LocalCustomColorsPalette.current.restaurant, placeTypeName ="Restaurantes", navController)
+        }/*
         Row{
             Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos")
         }
         Row{
             Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
-        }
+        }*/
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
+fun Encuentra3(placeType: String, color: Color,  placeTypeName: String, navController: NavController) {
     var restaurantesCercanos by remember { mutableStateOf<List<Restaurant>?>(null) }
     val context = LocalContext.current
     val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -165,10 +165,13 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
                                     restaurante.vicinity,
                                     restaurante.rating.toString(),
                                     restaurante.place_id,
+                                    restaurante.website.toString(),
+                                    restaurante.phoneNumber.toString(),
                                     context,
                                     calcularDistancia(location!!.latitude,
                                         location!!.longitude,restaurante.geometry.location.lat,restaurante.geometry.location.lng
-                                    )
+                                    ),
+                                    navController
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
@@ -210,49 +213,28 @@ fun fetchNearbyRestaurants(
         }
     })
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun encuentra(placesClient: PlacesClient){
-    var lugarNombre by remember { mutableStateOf("") }
-    var lugarDireccion by remember { mutableStateOf("")}
-
-    // Define a Place ID.
-    val placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE"
-
-// Specify the fields to return.
-    val placeFields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS)
-
-// Construct a request object, passing the place ID and fields array.
-    val request = FetchPlaceRequest.newInstance(placeId, placeFields)
-
-    placesClient.fetchPlace(request)
-        .addOnSuccessListener { response: FetchPlaceResponse ->
-            val place = response.place
-            lugarNombre = place.name
-            lugarDireccion = place.address
-            Log.e(ContentValues.TAG,"Place found: ${place.name}")
-
-        }.addOnFailureListener { exception: Exception ->
-            if (exception is ApiException) {
-                Log.e("Busqueda", "Place not found: ${exception.message}")
-                val statusCode = exception.statusCode
-                TODO("Handle error with given status code")
-            }
-        }
-
-    Text(text = lugarNombre)
-    Text(text = lugarDireccion)
-
-
-}
-
-
-@Composable
-fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String, placeId: String, context: Context, kmFromUser: Int) {
+fun RestaurantCard(
+    placeName: String,
+    placeAdress: String,
+    placeRating: String,
+    placeId: String,
+    placePhone: String,
+    placeWebsite: String,
+    context: Context,
+    kmFromUser: Int,
+    navController : NavController
+) {
     Card(
         modifier = Modifier
             .padding(end = 8.dp)
             .height(100.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        onClick = {
+            navController.navigate("detallesScreen/$placeId/$placeName/$placeAdress/$placeRating/$kmFromUser/$placePhone/$placeWebsite")
+        }
     ) {
         Row(
             modifier = Modifier
@@ -345,6 +327,7 @@ fun Photo(placeId: String, context: Context) {
         )
     }
 }
+
 fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Int {
     val R = 6371
 

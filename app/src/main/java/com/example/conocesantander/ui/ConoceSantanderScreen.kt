@@ -34,7 +34,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.conocesantander.R
+import com.example.conocesantander.ui.classes.Restaurant
 import com.example.conocesantander.ui.screens.AccountScreen
+import com.example.conocesantander.ui.screens.DetallesScreen
 import com.example.conocesantander.ui.screens.FavouriteScreen
 import com.example.conocesantander.ui.screens.HomeScreen
 import com.example.conocesantander.ui.screens.MapScreen
@@ -96,12 +98,32 @@ fun MyAppContent(
                     startDestination = MyAppRoute.HOME,
                 ) {
                     composable(MyAppRoute.HOME) {
-                        HomeScreen(placesClient, context)
+                        HomeScreen(placesClient, context, navController)
+                    }
+                    composable("detallesScreen/{placeId}/{placeName}/{placeAddress}/{placeRating}/{kmFromUser}/{placePhone}/{placeWebsite}") { backStackEntry ->
+                        val placeId = backStackEntry.arguments?.getString("placeId") ?: ""
+                        val placeName = backStackEntry.arguments?.getString("placeName") ?: ""
+                        val placeAddress = backStackEntry.arguments?.getString("placeAddress") ?: ""
+                        val placeRating = backStackEntry.arguments?.getString("placeRating") ?: ""
+                        val kmFromUser = backStackEntry.arguments?.getString("kmFromUser") ?: ""
+                        val placePhone = backStackEntry.arguments?.getString("placePhone") ?: ""
+                        val placeWebsite = backStackEntry.arguments?.getString("placeWebsite") ?: ""
+
+
+                        DetallesScreen(
+                            placesClient = placesClient,
+                            context = context,
+                            placeId = placeId,
+                            placeName = placeName,
+                            placeAddress = placeAddress,
+                            placeRating = placeRating,
+                            kmFromUser = kmFromUser,
+                            placePhone = placePhone,
+                            placeWebsite = placeWebsite
+                        )
                     }
                     composable(MyAppRoute.MAP) {
-
                         MapScreen()
-
                     }
                     composable(MyAppRoute.SEARCH) {
                         SearchScreen()
