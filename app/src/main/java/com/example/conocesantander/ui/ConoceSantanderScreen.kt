@@ -34,13 +34,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.conocesantander.R
-import com.example.conocesantander.ui.classes.Restaurant
 import com.example.conocesantander.ui.screens.AccountScreen
 import com.example.conocesantander.ui.screens.DetallesScreen
 import com.example.conocesantander.ui.screens.FavouriteScreen
 import com.example.conocesantander.ui.screens.HomeScreen
 import com.example.conocesantander.ui.screens.MapScreen
 import com.example.conocesantander.ui.screens.SearchScreen
+import com.example.conocesantander.ui.screens.UserProfileScreen
 import com.google.android.libraries.places.api.net.PlacesClient
 
 
@@ -100,11 +100,13 @@ fun MyAppContent(
                     composable(MyAppRoute.HOME) {
                         HomeScreen(placesClient, context, navController)
                     }
-                    composable("detallesScreen/{placeId}/{placeName}/{placeAddress}/{placeRating}/{kmFromUser}/{placePhone}/{placeWebsite}") { backStackEntry ->
+                    composable("detallesScreen/{placeId}/{placeName}/{placeAddress}/{placeRating}/{kmFromUser}/{placeLat}/{placeLng}/{placePhone}/{placeWebsite}") { backStackEntry ->
                         val placeId = backStackEntry.arguments?.getString("placeId") ?: ""
                         val placeName = backStackEntry.arguments?.getString("placeName") ?: ""
                         val placeAddress = backStackEntry.arguments?.getString("placeAddress") ?: ""
                         val placeRating = backStackEntry.arguments?.getString("placeRating") ?: ""
+                        val placeLat = backStackEntry.arguments?.getString("placeLat") ?: ""
+                        val placeLng = backStackEntry.arguments?.getString("placeLng") ?: ""
                         val kmFromUser = backStackEntry.arguments?.getString("kmFromUser") ?: ""
                         val placePhone = backStackEntry.arguments?.getString("placePhone") ?: ""
                         val placeWebsite = backStackEntry.arguments?.getString("placeWebsite") ?: ""
@@ -112,12 +114,15 @@ fun MyAppContent(
 
                         DetallesScreen(
                             placesClient = placesClient,
+                            navController = navController,
                             context = context,
                             placeId = placeId,
                             placeName = placeName,
                             placeAddress = placeAddress,
                             placeRating = placeRating,
                             kmFromUser = kmFromUser,
+                            placeLat = placeLat,
+                            placeLng = placeLng,
                             placePhone = placePhone,
                             placeWebsite = placeWebsite
                         )
@@ -132,7 +137,7 @@ fun MyAppContent(
                         FavouriteScreen()
                     }
                     composable(MyAppRoute.ACCOUNT) {
-                        AccountScreen()
+                        UserProfileScreen()
                     }
                 }
 

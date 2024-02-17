@@ -1,36 +1,26 @@
 package com.example.conocesantander.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.ContentUris
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.location.Location
-import android.provider.ContactsContract
 import android.util.Log
-import android.widget.ImageView
-import android.widget.ScrollView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,14 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,29 +39,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.BuildConfig
-import com.example.conocesantander.R
 import com.example.conocesantander.ui.classes.NearbySearchResponse
 import com.example.conocesantander.ui.classes.PlacesClient.create
-import com.example.conocesantander.ui.classes.Restaurant
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPhotoRequest
-import com.google.android.libraries.places.api.net.FetchPhotoResponse
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
-import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.PlacesClient
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.lang.Math.atan2
 import java.lang.Math.cos
-import java.lang.Math.round
 import java.lang.Math.sin
 import java.lang.Math.sqrt
 import java.util.concurrent.ExecutionException
@@ -102,7 +79,7 @@ fun HomeScreen(placesClient: PlacesClient, context: Context, navController: NavC
 @SuppressLint("MissingPermission")
 @Composable
 fun Encuentra3(placeType: String, color: Color,  placeTypeName: String, navController: NavController) {
-    var restaurantesCercanos by remember { mutableStateOf<List<Restaurant>?>(null) }
+    var restaurantesCercanos by remember { mutableStateOf<List<com.example.conocesantander.ui.classes.Lugar>?>(null) }
     val context = LocalContext.current
     val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -129,7 +106,7 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String, navContr
         location?.let { loc ->
             fetchNearbyRestaurants(loc.latitude.toString() + "," + loc.longitude.toString(), radius, type) { nearbyRestaurants ->
                 restaurantesCercanos = nearbyRestaurants.sortedByDescending { it.rating ?: Float.MIN_VALUE }
-                    .take(3)
+                    .take(1)
 
             }
         }
@@ -171,6 +148,8 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String, navContr
                                     calcularDistancia(location!!.latitude,
                                         location!!.longitude,restaurante.geometry.location.lat,restaurante.geometry.location.lng
                                     ),
+                                    restaurante.geometry.location.lat.toString(),
+                                    restaurante.geometry.location.lng.toString(),
                                     navController
                                 )
                             }
@@ -190,7 +169,7 @@ fun fetchNearbyRestaurants(
     location: String,
     radius: Int,
     type: String,
-    onSuccess: (List<Restaurant>) -> Unit
+    onSuccess: (List<com.example.conocesantander.ui.classes.Lugar>) -> Unit
 ) {
     val service = create()
     val apiKey = BuildConfig.PLACES_API_KEY // Reemplaza con tu clave de API de Google Places
@@ -225,6 +204,8 @@ fun RestaurantCard(
     placeWebsite: String,
     context: Context,
     kmFromUser: Int,
+    placeLat : String,
+    placeLng : String,
     navController : NavController
 ) {
     Card(
@@ -233,7 +214,7 @@ fun RestaurantCard(
             .height(100.dp)
             .fillMaxWidth(),
         onClick = {
-            navController.navigate("detallesScreen/$placeId/$placeName/$placeAdress/$placeRating/$kmFromUser/$placePhone/$placeWebsite")
+            navController.navigate("detallesScreen/$placeId/$placeName/$placeAdress/$placeRating/$kmFromUser/$placeLat/$placeLng/$placePhone/$placeWebsite")
         }
     ) {
         Row(

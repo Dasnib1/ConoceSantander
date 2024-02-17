@@ -1,9 +1,6 @@
 package com.example.conocesantander.ui.classes
 
-import android.os.Parcelable
-import android.provider.ContactsContract
 import com.google.android.libraries.places.api.model.OpeningHours
-import com.google.android.libraries.places.api.model.Review
 
 data class Location(
     val lat: Double,
@@ -14,7 +11,7 @@ data class Geometry(
     val location: Location
 )
 
-data class Restaurant(
+data class Lugar(
     val place_id : String,
     val name: String,
     val vicinity: String,
@@ -28,5 +25,5 @@ data class Restaurant(
 
 
 data class NearbySearchResponse(
-    val results: List<Restaurant>
+    val results: List<Lugar>
 )
