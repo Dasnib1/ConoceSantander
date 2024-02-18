@@ -77,6 +77,7 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
 
+
     // Google Places
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.10"))
     implementation("com.google.android.libraries.places:places:3.3.0")

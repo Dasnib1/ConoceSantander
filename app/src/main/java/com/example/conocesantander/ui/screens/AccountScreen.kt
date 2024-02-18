@@ -40,15 +40,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.conocesantander.R
+import com.example.conocesantander.ui.ConoceSantanderViewModel
+import com.example.conocesantander.ui.MyAppRoute
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountScreen(){
+fun AccountScreen(navController: NavController){
     var username by remember { mutableStateOf("yourname@email.com") }
     var password by remember { mutableStateOf("abc123") }
+    val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -80,10 +84,23 @@ fun AccountScreen(){
         Text(text = "-- O --", modifier = Modifier.padding(vertical = 8.dp)) // Espaciado uniforme
 
         Button(onClick = {
+            //TODO logica del inicio...
+            //Prueba
+            conoceSantanderViewModel.setUserSignIn(true)
+            navController.navigate(MyAppRoute.ACCOUNT)
+
+        }) {
+            Text("Inicio Sesión")
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Button(onClick = {
             // Lógica para el botón de inicio de sesión con credenciales guardadas
         }) {
-            Text("Iniciar Sesión con Credenciales Guardadas")
+            Text("Inicio Sesión con Credenciales Guardadas")
         }
+
     }
 }
 fun signUp(email: String, password: String) {

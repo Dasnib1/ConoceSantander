@@ -35,10 +35,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.conocesantander.R
 import com.example.conocesantander.ui.screens.AccountScreen
+import com.example.conocesantander.ui.screens.DetallesScreen
 import com.example.conocesantander.ui.screens.FavouriteScreen
 import com.example.conocesantander.ui.screens.HomeScreen
 import com.example.conocesantander.ui.screens.MapScreen
 import com.example.conocesantander.ui.screens.SearchScreen
+import com.example.conocesantander.ui.screens.UserProfileScreen
 import com.google.android.libraries.places.api.net.PlacesClient
 
 
@@ -96,12 +98,13 @@ fun MyAppContent(
                     startDestination = MyAppRoute.HOME,
                 ) {
                     composable(MyAppRoute.HOME) {
-                        HomeScreen(placesClient, context)
+                        HomeScreen(placesClient, context, navController)
+                    }
+                    composable("detallesScreen") {
+                        DetallesScreen(placesClient, navController, context)
                     }
                     composable(MyAppRoute.MAP) {
-
                         MapScreen()
-
                     }
                     composable(MyAppRoute.SEARCH) {
                         SearchScreen()
@@ -110,7 +113,14 @@ fun MyAppContent(
                         FavouriteScreen()
                     }
                     composable(MyAppRoute.ACCOUNT) {
-                        AccountScreen()
+                        val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+                        val isUserSigned = conoceSantanderViewModel.userSignIn
+
+                        if(isUserSigned == true){
+                            UserProfileScreen(navController)
+                        } else{
+                            AccountScreen(navController)
+                        }
                     }
                 }
 
