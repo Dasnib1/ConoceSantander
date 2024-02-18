@@ -36,9 +36,9 @@ val OnLightCustomColorsPalette = CustomColorsPalette(
     )
 
 val OnDarkCustomColorsPalette = CustomColorsPalette(
-    restaurant = Color(color = 0xFFC62828),
-    museum = Color(color = 0xFF1A237E),
-    park = Color(color = 0xFF1B5E20),
+    restaurant = Color(color = 0xFF9B1818),
+    museum = Color(color = 0xFF1B68AB),
+    park = Color(color = 0xFF2E6E31),
 
 )
 
