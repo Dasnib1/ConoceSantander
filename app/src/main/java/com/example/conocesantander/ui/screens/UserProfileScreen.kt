@@ -27,11 +27,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.conocesantander.R
+import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.ui.MyAppRoute
 
 @Composable
-fun UserProfileScreen(){
+fun UserProfileScreen(navController: NavController){
+    val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -49,7 +53,10 @@ fun UserProfileScreen(){
         )
         Spacer(modifier = Modifier.height(12.dp))
         Button(
-            onClick = { /*Todo*/}
+            onClick = {
+                conoceSantanderViewModel.setUserSignIn(false)
+                navController.navigate(MyAppRoute.ACCOUNT)
+            }
         ) {
             Text(
                 text = "Cerrar Sesión"

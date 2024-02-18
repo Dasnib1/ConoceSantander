@@ -100,32 +100,8 @@ fun MyAppContent(
                     composable(MyAppRoute.HOME) {
                         HomeScreen(placesClient, context, navController)
                     }
-                    composable("detallesScreen/{placeId}/{placeName}/{placeAddress}/{placeRating}/{kmFromUser}/{placeLat}/{placeLng}/{placePhone}/{placeWebsite}") { backStackEntry ->
-                        val placeId = backStackEntry.arguments?.getString("placeId") ?: ""
-                        val placeName = backStackEntry.arguments?.getString("placeName") ?: ""
-                        val placeAddress = backStackEntry.arguments?.getString("placeAddress") ?: ""
-                        val placeRating = backStackEntry.arguments?.getString("placeRating") ?: ""
-                        val placeLat = backStackEntry.arguments?.getString("placeLat") ?: ""
-                        val placeLng = backStackEntry.arguments?.getString("placeLng") ?: ""
-                        val kmFromUser = backStackEntry.arguments?.getString("kmFromUser") ?: ""
-                        val placePhone = backStackEntry.arguments?.getString("placePhone") ?: ""
-                        val placeWebsite = backStackEntry.arguments?.getString("placeWebsite") ?: ""
-
-
-                        DetallesScreen(
-                            placesClient = placesClient,
-                            navController = navController,
-                            context = context,
-                            placeId = placeId,
-                            placeName = placeName,
-                            placeAddress = placeAddress,
-                            placeRating = placeRating,
-                            kmFromUser = kmFromUser,
-                            placeLat = placeLat,
-                            placeLng = placeLng,
-                            placePhone = placePhone,
-                            placeWebsite = placeWebsite
-                        )
+                    composable("detallesScreen") {
+                        DetallesScreen(placesClient, navController, context)
                     }
                     composable(MyAppRoute.MAP) {
                         MapScreen()
@@ -137,7 +113,14 @@ fun MyAppContent(
                         FavouriteScreen()
                     }
                     composable(MyAppRoute.ACCOUNT) {
-                        UserProfileScreen()
+                        val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+                        val isUserSigned = conoceSantanderViewModel.userSignIn
+
+                        if(isUserSigned == true){
+                            UserProfileScreen(navController)
+                        } else{
+                            AccountScreen(navController)
+                        }
                     }
                 }
 

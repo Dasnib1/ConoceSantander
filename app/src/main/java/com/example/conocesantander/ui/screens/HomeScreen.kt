@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.BuildConfig
+import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.ui.classes.NearbySearchResponse
 import com.example.conocesantander.ui.classes.PlacesClient.create
 import com.google.android.gms.location.LocationServices
@@ -61,29 +62,45 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeScreen(placesClient: PlacesClient, context: Context, navController: NavController) {
 
-    Column (modifier = Modifier
-        .verticalScroll(rememberScrollState())
-        ) {
-        Row{
-            Encuentra3(placeType = "restaurant", color = LocalCustomColorsPalette.current.restaurant, placeTypeName ="Restaurantes", navController)
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+    ) {
+        Row {
+            BusquedaLugares(
+                placeType = "restaurant",
+                color = LocalCustomColorsPalette.current.restaurant,
+                placeTypeName = "Restaurantes",
+                navController
+            )
         }/*
-        Row{
-            Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos")
-        }
-        Row{
-            Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
-        }*/
+Row{
+    Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos", navController)
+}
+Row{
+    Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
+}*/
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-fun Encuentra3(placeType: String, color: Color,  placeTypeName: String, navController: NavController) {
-    var restaurantesCercanos by remember { mutableStateOf<List<com.example.conocesantander.ui.classes.Lugar>?>(null) }
+fun BusquedaLugares(
+    placeType: String,
+    color: Color,
+    placeTypeName: String,
+    navController: NavController
+) {
+    var lugaresCercanos by remember {
+        mutableStateOf<List<com.example.conocesantander.ui.classes.Lugar>?>(
+            null
+        )
+    }
     val context = LocalContext.current
-    val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val fusedLocationProvider =
+        remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    // Define la ubicación del usuario (latitud y longitud)
+// Define la ubicación del usuario (latitud y longitud)
     var location: Location? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
@@ -95,38 +112,43 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String, navContr
         }
     }
 
-    // Define el radio de búsqueda en metros
+// Define el radio de búsqueda en metros
     val radius = 1000
 
-    // Define el tipo de lugar (en este caso, restaurantes)
+// Define el tipo de lugar
     val type = placeType
 
-    // Realiza la llamada a la API para obtener los restaurantes cercanos cuando se obtenga la ubicación
+// Realiza la llamada a la API para obtener los lugares cercanos cuando se obtenga la ubicación
     LaunchedEffect(location) {
         location?.let { loc ->
-            fetchNearbyRestaurants(loc.latitude.toString() + "," + loc.longitude.toString(), radius, type) { nearbyRestaurants ->
-                restaurantesCercanos = nearbyRestaurants.sortedByDescending { it.rating ?: Float.MIN_VALUE }
-                    .take(1)
-
+            fetchNearbyPlaces(
+                loc.latitude.toString() + "," + loc.longitude.toString(),
+                radius,
+                type
+            ) { nearbyRestaurants ->
+                lugaresCercanos =
+                    nearbyRestaurants.sortedByDescending { it.rating ?: Float.MIN_VALUE }
+                        .take(1)
             }
         }
     }
 
-    // Muestra los restaurantes cercanos si están disponibles
-    restaurantesCercanos?.let { restaurantes ->
-        if (restaurantes.isNotEmpty()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .background(color = color)
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
+            Column {
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(color = color)
-                        .padding(16.dp)
-                ) {
-                    Column {
+                // Muestra los kugares cercanos si están disponibles
+                lugaresCercanos?.let { lugares ->
+                    if (lugares.isNotEmpty()) {
                         Text(
                             text = "Recomendaciones de " + placeTypeName,
                             style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
@@ -134,38 +156,43 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String, navContr
                         Spacer(modifier = Modifier.height(16.dp))
 
 
-                        restaurantes.forEach { restaurante ->
-                            Log.e("Place", restaurante.name)
+                        lugares.forEach { lugar ->
+                            Log.e("Place", lugar.name)
                             Row(modifier = Modifier.fillMaxWidth()) {
-                                RestaurantCard(
-                                    restaurante.name,
-                                    restaurante.vicinity,
-                                    restaurante.rating.toString(),
-                                    restaurante.place_id,
-                                    restaurante.website.toString(),
-                                    restaurante.phoneNumber.toString(),
+                                LugarCard(
+                                    lugar.name,
+                                    lugar.vicinity,
+                                    lugar.rating.toString(),
+                                    lugar.place_id,
+                                    lugar.website.toString(),
+                                    lugar.phoneNumber.toString(),
                                     context,
-                                    calcularDistancia(location!!.latitude,
-                                        location!!.longitude,restaurante.geometry.location.lat,restaurante.geometry.location.lng
+                                    calcularDistancia(
+                                        location!!.latitude,
+                                        location!!.longitude,
+                                        lugar.geometry.location.lat,
+                                        lugar.geometry.location.lng
                                     ),
-                                    restaurante.geometry.location.lat.toString(),
-                                    restaurante.geometry.location.lng.toString(),
+                                    lugar.geometry.location.lat.toString(),
+                                    lugar.geometry.location.lng.toString(),
                                     navController
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-
                         }
+                    } else {
+                        Text(
+                            text = "No hay " + placeTypeName + " cercanos",
+                            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                        )
                     }
                 }
             }
-
-        } else {
-            Text(text = "No se encontraron restaurantes cercanos")
         }
     }
 }
-fun fetchNearbyRestaurants(
+
+fun fetchNearbyPlaces(
     location: String,
     radius: Int,
     type: String,
@@ -174,12 +201,15 @@ fun fetchNearbyRestaurants(
     val service = create()
     val apiKey = BuildConfig.PLACES_API_KEY // Reemplaza con tu clave de API de Google Places
 
-    val call = service.getNearbyRestaurants(location, radius, type, apiKey)
+    val call = service.getNearbyLugares(location, radius, type, apiKey)
     call.enqueue(object : Callback<NearbySearchResponse> {
-        override fun onResponse(call: Call<NearbySearchResponse>, response: Response<NearbySearchResponse>) {
+        override fun onResponse(
+            call: Call<NearbySearchResponse>,
+            response: Response<NearbySearchResponse>
+        ) {
             if (response.isSuccessful) {
-                val nearbyRestaurants = response.body()?.results
-                nearbyRestaurants?.let {
+                val nearbyPlaces = response.body()?.results
+                nearbyPlaces?.let {
                     onSuccess(it)
                 }
             } else {
@@ -195,7 +225,7 @@ fun fetchNearbyRestaurants(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RestaurantCard(
+fun LugarCard(
     placeName: String,
     placeAdress: String,
     placeRating: String,
@@ -204,17 +234,30 @@ fun RestaurantCard(
     placeWebsite: String,
     context: Context,
     kmFromUser: Int,
-    placeLat : String,
-    placeLng : String,
-    navController : NavController
+    placeLat: String,
+    placeLng: String,
+    navController: NavController
 ) {
+    val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+
     Card(
         modifier = Modifier
             .padding(end = 8.dp)
             .height(100.dp)
             .fillMaxWidth(),
         onClick = {
-            navController.navigate("detallesScreen/$placeId/$placeName/$placeAdress/$placeRating/$kmFromUser/$placeLat/$placeLng/$placePhone/$placeWebsite")
+            conoceSantanderViewModel.setPlace(
+                placeId,
+                placeName,
+                placeAdress,
+                placeRating,
+                placePhone,
+                placeWebsite,
+                placeLat.toDouble(),
+                placeLng.toDouble(),
+                kmFromUser
+            )
+            navController.navigate("detallesScreen")
         }
     ) {
         Row(
@@ -251,7 +294,7 @@ fun RestaurantCard(
                     Spacer(modifier = Modifier.width(16.dp))
 
                     Text(
-                        text = kmFromUser.toString() +" metros",
+                        text = kmFromUser.toString() + " metros",
                         style = TextStyle(fontSize = 12.sp)
                     )
                 }

@@ -44,20 +44,27 @@ fun DetallesScreen(
     placesClient: PlacesClient,
     navController: NavController,
     context: Context,
-    placeId : String,
-    placeName : String,
-    placeAddress : String,
-    placeRating : String,
-    kmFromUser : String,
-    placeLat : String,
-    placeLng : String,
-    placePhone : String,
-    placeWebsite : String,
+
+
     )
 {
-    val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+    var conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+    val placeId = conoceSantanderViewModel.placeId
+    val placeName = conoceSantanderViewModel.placeName
+    val placeAddress = conoceSantanderViewModel.placeAddress
+    val placeRating = conoceSantanderViewModel.placeRating
+    val placePhone = conoceSantanderViewModel.placePhone
+    val placeWebsite = conoceSantanderViewModel.placeWebsite
+    val placeLat = conoceSantanderViewModel.latitude
+    val placeLng = conoceSantanderViewModel.longitude
+    val kmFromUser = conoceSantanderViewModel.kmFromUser
 
-    conoceSantanderViewModel.setLocation(placeLat.toDouble(), placeLng.toDouble(), placeName)
+
+    conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+
+    if (placeLat != null && placeLng != null && placeName != null) {
+        conoceSantanderViewModel.setLocation(placeLat, placeLng, placeName)
+    }
 
 
     Column(
@@ -65,18 +72,18 @@ fun DetallesScreen(
         //verticalArrangement = Arrangement.Center,
         //horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PhotoDetail(placeId = placeId, context = context)
+        PhotoDetail(placeId = "$placeId", context = context)
         Column (
             modifier = Modifier.padding(start = 16.dp, end = 16.dp)
         ){
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = placeName,
+                text = "$placeName",
                 style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)
             )
             Row {
                 Text(
-                    text = placeRating,
+                    text = "$placeRating",
                     style = TextStyle(fontSize = 28.sp)
                 )
                 Text(
@@ -95,7 +102,6 @@ fun DetallesScreen(
             ){
                 Button(
                     onClick = {
-
                         navController.navigate(MyAppRoute.MAP)
                     }
                 ) {
