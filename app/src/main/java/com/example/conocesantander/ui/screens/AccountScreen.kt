@@ -47,6 +47,10 @@ import com.example.conocesantander.R
 import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.ui.MyAppRoute
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(navController: NavController){
@@ -84,8 +88,7 @@ fun AccountScreen(navController: NavController){
                 },
                 { errorMessage ->
                     // En caso de error, muestra un mensaje al usuario
-                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                }
+                    }
             )
         }) {
             Text("Registro")
@@ -105,8 +108,7 @@ fun AccountScreen(navController: NavController){
                             },
                            { errorMessage ->
                                 // En caso de error, muestra un mensaje al usuario
-                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                            }
+                           }
                         )
 
 
@@ -125,21 +127,34 @@ fun AccountScreen(navController: NavController){
     }
 }
 fun signUp(email: String, password: String, successCallback: () -> Unit, errorCallback: (String) -> Unit) {
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
     FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-        .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                // El usuario ha iniciado sesión correctamente
+        .addOnCompleteListener { signUpTask ->
+            if (signUpTask.isSuccessful) {
+                FirebaseAuth.getInstance().currentUser?.let {
+                    conoceSantanderViewModel.updateUserId(it.uid)
+                    conoceSantanderViewModel.updateCurrentUser(FirebaseAuth.getInstance().currentUser)
+                }
                 successCallback.invoke()
             } else {
-                // Error al iniciar sesión
-                errorCallback.invoke("Error al registrar: ${task.exception?.message}")
+                // Error al registrar
+                val errorMessage = signUpTask.exception?.message ?: "Error desconocido al registrar"
+                errorCallback.invoke(errorMessage)
             }
         }
 }
+
 fun signIn(email: String, password: String, successCallback: () -> Unit, errorCallback: (String) -> Unit) {
+    val conoceSantanderViewModel =  ConoceSantanderViewModel.getInstance()
+
     FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                FirebaseAuth.getInstance().currentUser?.let {
+                    conoceSantanderViewModel.updateUserId(
+                        it.uid)
+                    conoceSantanderViewModel.updateCurrentUser(FirebaseAuth.getInstance().currentUser)
+                }
                 successCallback.invoke()
             } else {
                 // Error al iniciar sesión

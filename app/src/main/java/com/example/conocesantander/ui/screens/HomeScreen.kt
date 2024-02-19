@@ -269,8 +269,11 @@ fun LugarCard(
         val esFavorito = remember { mutableStateOf(false) }
 
         // Función para cambiar el estado de favorito/no favorito y manejar la lógica de clic
-        fun toggleFavorito() {
+        fun Favorito() {
             guardarLugarFavoritoEnFirebase(placeId,esFavorito)
+        }
+        fun eliminarFavorito() {
+            eliminarLugarDeFavoritosEnFirebase(placeId,esFavorito)
         }
         Row(
             modifier = Modifier
@@ -313,18 +316,19 @@ fun LugarCard(
 
             }
             Spacer(modifier = Modifier.width(4.dp))
+            esLugarFavoritoEnFirebase(placeId,esFavorito)
             if (esFavorito.value) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = "Favorito",
                     tint = Color.Red,
-                    modifier = Modifier.clickable(onClick = { toggleFavorito() })
+                    modifier = Modifier.clickable(onClick = { eliminarFavorito() })
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.FavoriteBorder,
                     contentDescription = "No favorito",
-                    modifier = Modifier.clickable(onClick = { toggleFavorito() })
+                    modifier = Modifier.clickable(onClick = { Favorito() })
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -391,26 +395,100 @@ fun guardarLugarFavoritoEnFirebase(
     setEsFavorito: MutableState<Boolean>
 ) {
     // Verificar si el usuario ha iniciado sesión
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
+
     val auth = FirebaseAuth.getInstance()
-    val currentUser = auth.currentUser
+    val currentUser = conoceSantanderViewModel.currentUser
 
     if (currentUser != null) {
-        val userId = currentUser.uid
+        val userId = conoceSantanderViewModel.userId
         val db = FirebaseFirestore.getInstance()
-        val lugaresFavoritosRef = db.collection("usuarios").document(userId)
-            .collection("favoritos")
+        val lugaresFavoritosRef = userId?.let {
+            db.collection("usuarios").document(it)
+                .collection("favoritos")
+        }
 
-        lugaresFavoritosRef.add(mapOf("id" to placeId))
-            .addOnSuccessListener {
-                Log.d("guardarLugarFavorito", "Lugar favorito agregado con éxito.")
-                setEsFavorito.value = true
-            }
-            .addOnFailureListener { e ->
-                Log.e("guardarLugarFavorito", "Error al agregar el lugar favorito: $e")
-                setEsFavorito.value = false
-            }
+        lugaresFavoritosRef?.add(mapOf("id" to placeId))?.addOnSuccessListener {
+            Log.d("guardarLugarFavorito", "Lugar favorito agregado con éxito.")
+            setEsFavorito.value = true
+        }?.addOnFailureListener { e ->
+            Log.e("guardarLugarFavorito", "Error al agregar el lugar favorito: $e")
+            setEsFavorito.value = false
+        }
     } else {
         Log.e("guardarLugarFavorito", "El usuario no ha iniciado sesión.")
         setEsFavorito.value = false
     }
 }
+fun eliminarLugarDeFavoritosEnFirebase(
+    placeId: String,
+    setEsFavorito: MutableState<Boolean>
+) {
+    // Verificar si el usuario ha iniciado sesión
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = conoceSantanderViewModel.currentUser
+
+    if (currentUser != null) {
+        val userId = conoceSantanderViewModel.userId
+        val db = FirebaseFirestore.getInstance()
+        val lugaresFavoritosRef = userId?.let {
+            db.collection("usuarios").document(it)
+                .collection("favoritos")
+        }
+
+        // Buscar el documento que contiene el lugar a eliminar
+        lugaresFavoritosRef?.whereEqualTo("id", placeId)?.get()
+            ?.addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    // Eliminar el documento encontrado
+                    document.reference.delete()
+                        .addOnSuccessListener {
+                            Log.d("eliminarLugarDeFavoritos", "Lugar eliminado de favoritos con éxito.")
+                            setEsFavorito.value = false
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("eliminarLugarDeFavoritos", "Error al eliminar el lugar de favoritos: $e")
+                            setEsFavorito.value = true
+                        }
+                }
+            }?.addOnFailureListener { e ->
+            Log.e("eliminarLugarDeFavoritos", "Error al buscar el lugar de favoritos: $e")
+            setEsFavorito.value = true
+        }
+    } else {
+        Log.e("eliminarLugarDeFavoritos", "El usuario no ha iniciado sesión.")
+        setEsFavorito.value = true
+    }
+}
+fun esLugarFavoritoEnFirebase(
+    placeId: String,
+    esFavorito: MutableState<Boolean>
+) {
+    // Verificar si el usuario ha iniciado sesión
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = conoceSantanderViewModel.currentUser
+
+    if (currentUser != null) {
+        val userId = conoceSantanderViewModel.userId
+        val db = FirebaseFirestore.getInstance()
+        val lugaresFavoritosRef = userId?.let {
+            db.collection("usuarios").document(it)
+                .collection("favoritos")
+        }
+
+        lugaresFavoritosRef?.whereEqualTo("id", placeId)?.get()?.addOnSuccessListener { documents ->
+            // Si hay algún documento que coincide con el ID del lugar, entonces está en favoritos
+            esFavorito.value = !documents.isEmpty
+        }?.addOnFailureListener { e ->
+            Log.e("esLugarFavorito", "Error al verificar si el lugar es favorito: $e")
+            esFavorito.value = false // Supongamos que no está en favoritos en caso de error
+        }
+    } else {
+        Log.e("esLugarFavorito", "El usuario no ha iniciado sesión.")
+        esFavorito.value = false // Supongamos que no está en favoritos si el usuario no ha iniciado sesión
+    }
+}
+
+
