@@ -20,7 +20,7 @@ data class Lugar(
     val rating: Float? = null, // Calificación del restaurante
     val openingHours: OpeningHours? = null, // Horario de apertura del restaurante
     val website: String? = null, // Sitio web del restaurante
-    val phoneNumber: Int? = null // Número de teléfono del restaurante
+    val phoneNumber: String? = null // Número de teléfono del restaurante
 )
 
 

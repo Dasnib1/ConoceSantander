@@ -43,10 +43,12 @@ fun UserProfileScreen(navController: NavController){
     ) {
         UserImage()
         Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            text = "Nombre User",
+            text = conoceSantanderViewModel.userName ?: "AAA",
             style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)
         )
+
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Nº de favoritos: ¿?",

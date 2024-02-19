@@ -1,11 +1,10 @@
 package com.example.conocesantander.ui
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ConoceSantanderViewModel : ViewModel() {
     var placeId: String? = null
@@ -19,14 +18,25 @@ class ConoceSantanderViewModel : ViewModel() {
     var kmFromUser: Int? = null
 
     var userSignIn: Boolean? = false
+    var userName: String? = null
 
-    fun setUserSignIn(isSignedIn: Boolean){
+    fun setUserSignIn(isSignedIn: Boolean) {
         viewModelScope.launch {
-            userSignIn = isSignedIn
+            withContext(Dispatchers.Main) {
+                userSignIn = isSignedIn
+            }
         }
     }
 
-    fun setPlace(id: String, name: String, address: String, rating: String, phone: String, website: String, lat: Double, lng: Double, km: Int){
+    fun updateUserName(name: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                userName = name
+            }
+        }
+    }
+
+    fun setPlace(id: String, name: String, address: String, rating: String, phone: String?, website: String, lat: Double, lng: Double, km: Int){
         viewModelScope.launch {
             placeId = id
             placeName = name

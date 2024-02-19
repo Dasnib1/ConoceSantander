@@ -146,7 +146,7 @@ fun BusquedaLugares(
         ) {
             Column {
 
-                // Muestra los kugares cercanos si están disponibles
+                // Muestra los lugares cercanos si están disponibles
                 lugaresCercanos?.let { lugares ->
                     if (lugares.isNotEmpty()) {
                         Text(
@@ -164,8 +164,8 @@ fun BusquedaLugares(
                                     lugar.vicinity,
                                     lugar.rating.toString(),
                                     lugar.place_id,
+                                    lugar.phoneNumber?.toString()?.trim() ?: "Número no disponible",
                                     lugar.website.toString(),
-                                    lugar.phoneNumber.toString(),
                                     context,
                                     calcularDistancia(
                                         location!!.latitude,
@@ -230,7 +230,7 @@ fun LugarCard(
     placeAdress: String,
     placeRating: String,
     placeId: String,
-    placePhone: String,
+    placePhone: String?,
     placeWebsite: String,
     context: Context,
     kmFromUser: Int,
