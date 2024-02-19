@@ -36,7 +36,7 @@ class ConoceSantanderViewModel : ViewModel() {
         }
     }
 
-    fun setPlace(id: String, name: String, address: String, rating: String, phone: String?, website: String, lat: Double, lng: Double, km: Int){
+    fun setPlace(id: String, name: String, address: String, rating: String, phone: String?, website: String?, lat: Double, lng: Double, km: Int){
         viewModelScope.launch {
             placeId = id
             placeName = name

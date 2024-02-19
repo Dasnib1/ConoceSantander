@@ -7,6 +7,7 @@ import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +50,10 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPhotoRequest
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import retrofit2.Call
 import retrofit2.Callback
@@ -164,8 +170,8 @@ fun BusquedaLugares(
                                     lugar.vicinity,
                                     lugar.rating.toString(),
                                     lugar.place_id,
-                                    lugar.phoneNumber?.toString()?.trim() ?: "Número no disponible",
-                                    lugar.website.toString(),
+                                    lugar.phoneNumber ?: "Número no disponible",
+                                    lugar.website ?:"No disponible",
                                     context,
                                     calcularDistancia(
                                         location!!.latitude,
@@ -231,7 +237,7 @@ fun LugarCard(
     placeRating: String,
     placeId: String,
     placePhone: String?,
-    placeWebsite: String,
+    placeWebsite: String?,
     context: Context,
     kmFromUser: Int,
     placeLat: String,
@@ -260,6 +266,12 @@ fun LugarCard(
             navController.navigate("detallesScreen")
         }
     ) {
+        val esFavorito = remember { mutableStateOf(false) }
+
+        // Función para cambiar el estado de favorito/no favorito y manejar la lógica de clic
+        fun toggleFavorito() {
+            guardarLugarFavoritoEnFirebase(placeId,esFavorito)
+        }
         Row(
             modifier = Modifier
                 .padding(8.dp)
@@ -301,12 +313,20 @@ fun LugarCard(
 
             }
             Spacer(modifier = Modifier.width(4.dp))
-            Icon(
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                tint = Color.Red,
-                modifier = Modifier.size(16.dp)
-            )
+            if (esFavorito.value) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorito",
+                    tint = Color.Red,
+                    modifier = Modifier.clickable(onClick = { toggleFavorito() })
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.FavoriteBorder,
+                    contentDescription = "No favorito",
+                    modifier = Modifier.clickable(onClick = { toggleFavorito() })
+                )
+            }
             Spacer(modifier = Modifier.width(8.dp))
 
         }
@@ -364,4 +384,33 @@ fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): I
     val distance = R * c
 
     return (distance * 1000).roundToInt()
+}
+
+fun guardarLugarFavoritoEnFirebase(
+    placeId: String,
+    setEsFavorito: MutableState<Boolean>
+) {
+    // Verificar si el usuario ha iniciado sesión
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+
+    if (currentUser != null) {
+        val userId = currentUser.uid
+        val db = FirebaseFirestore.getInstance()
+        val lugaresFavoritosRef = db.collection("usuarios").document(userId)
+            .collection("favoritos")
+
+        lugaresFavoritosRef.add(mapOf("id" to placeId))
+            .addOnSuccessListener {
+                Log.d("guardarLugarFavorito", "Lugar favorito agregado con éxito.")
+                setEsFavorito.value = true
+            }
+            .addOnFailureListener { e ->
+                Log.e("guardarLugarFavorito", "Error al agregar el lugar favorito: $e")
+                setEsFavorito.value = false
+            }
+    } else {
+        Log.e("guardarLugarFavorito", "El usuario no ha iniciado sesión.")
+        setEsFavorito.value = false
+    }
 }

@@ -19,8 +19,8 @@ data class Lugar(
     val photoReferences: List<String>?, // Lista de fotos del restaurante
     val rating: Float? = null, // Calificación del restaurante
     val openingHours: OpeningHours? = null, // Horario de apertura del restaurante
-    val website: String? = null, // Sitio web del restaurante
-    val phoneNumber: String? = null // Número de teléfono del restaurante
+    val website: String, // Sitio web del restaurante
+    val phoneNumber: String // Número de teléfono del restaurante
 )
 
 
