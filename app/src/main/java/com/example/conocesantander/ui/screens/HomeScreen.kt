@@ -77,13 +77,23 @@ fun HomeScreen(placesClient: PlacesClient, context: Context, navController: NavC
                 placeTypeName = "Restaurantes",
                 navController
             )
-        }/*
-Row{
-    Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos", navController)
-}
-Row{
-    Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
-}*/
+        }
+        Row {
+            BusquedaLugares(
+                placeType = "museum",
+                color = LocalCustomColorsPalette.current.museum,
+                placeTypeName = "Museos",
+                navController
+            )
+        }
+        Row {
+            BusquedaLugares(
+                placeType = "park",
+                color = LocalCustomColorsPalette.current.park,
+                placeTypeName = "Parques",
+                navController
+            )
+        }
     }
 }
 
@@ -168,8 +178,6 @@ fun BusquedaLugares(
                                     lugar.vicinity,
                                     lugar.rating.toString(),
                                     lugar.place_id,
-                                    lugar.phoneNumber ?: "Número no disponible",
-                                    lugar.website ?:"No disponible",
                                     context,
                                     calcularDistancia(
                                         location!!.latitude,
@@ -205,7 +213,7 @@ fun fetchNearbyPlaces(
     val service = create()
     val apiKey = BuildConfig.PLACES_API_KEY // Reemplaza con tu clave de API de Google Places
 
-    val call = service.getNearbyLugares(location, radius, type, apiKey)
+    val call = service.getNearbyLugares(location, radius, type, apiKey, "es")
     call.enqueue(object : Callback<NearbySearchResponse> {
         override fun onResponse(
             call: Call<NearbySearchResponse>,
@@ -234,8 +242,6 @@ fun LugarCard(
     placeAdress: String,
     placeRating: String,
     placeId: String,
-    placePhone: String?,
-    placeWebsite: String?,
     context: Context,
     kmFromUser: Int,
     placeLat: String,
@@ -255,8 +261,6 @@ fun LugarCard(
                 placeName,
                 placeAdress,
                 placeRating,
-                placePhone,
-                placeWebsite,
                 placeLat.toDouble(),
                 placeLng.toDouble(),
                 kmFromUser

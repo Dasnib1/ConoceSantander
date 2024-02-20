@@ -110,7 +110,7 @@ fun MyAppContent(
                         SearchScreen()
                     }
                     composable(MyAppRoute.FAVOURITES) {
-                        FavouriteScreen()
+                        FavouriteScreen(placesClient)
                     }
                     composable(MyAppRoute.ACCOUNT) {
                         val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }

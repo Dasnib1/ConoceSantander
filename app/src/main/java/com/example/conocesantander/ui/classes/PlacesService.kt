@@ -10,7 +10,8 @@ interface PlacesService {
         @Query("location") location: String,
         @Query("radius") radius: Int,
         @Query("type") type: String,
-        @Query("key") apiKey: String
+        @Query("key") apiKey: String,
+        @Query("language") language: String
     ): Call<NearbySearchResponse>
 
 }

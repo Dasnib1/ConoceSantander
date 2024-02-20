@@ -64,9 +64,9 @@ fun MapScreen(
             uiSettings = MapUiSettings(),
         ){
             val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
-            val lat = conoceSantanderViewModel.latitude
-            val lng = conoceSantanderViewModel.longitude
-            val placeName = conoceSantanderViewModel.placeName
+            val lat = conoceSantanderViewModel.latitudeMap
+            val lng = conoceSantanderViewModel.longitudeMap
+            val placeName = conoceSantanderViewModel.placeNameMap
             Log.e("Ayuda", "$lat $lng")
 
 

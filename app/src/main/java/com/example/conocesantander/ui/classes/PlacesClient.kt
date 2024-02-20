@@ -14,4 +14,5 @@ object PlacesClient {
 
         return retrofit.create(PlacesService::class.java)
     }
+
 }
