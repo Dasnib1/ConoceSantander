@@ -1,5 +1,6 @@
 package com.example.conocesantander.ui.screens
 
+import android.content.ContentValues
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,20 +11,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.conocesantander.ui.ConoceSantanderViewModel
-import com.example.conocesantander.ui.classes.Favorito
-import com.example.conocesantander.ui.classes.obtenerFavoritosDelUsuario
-import com.google.firebase.auth.FirebaseAuth
+import com.google.android.gms.common.api.ApiException
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FetchPlaceResponse
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun FavouriteScreen(){
+fun FavouriteScreen(placesClient: PlacesClient){
     val (favoritosList, setFavoritosList) = remember { mutableStateOf<List<String>?>(null) }
     val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
     val isSignedIn = conoceSantanderViewModel.userSignIn
@@ -50,11 +55,7 @@ fun FavouriteScreen(){
                 // Mostrar la lista de favoritos
                 LazyColumn {
                     items(favoritosList) { favorito ->
-                        Text(
-                            text = favorito,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(8.dp)
-                        )
+                        encuentra(placesClient = placesClient, placeId =favorito )
                     }
                 }
 
@@ -102,4 +103,36 @@ fun obtenerFavoritosDeUsuario(
         errorCallback("El usuario no está autenticado")
     }
 }
+@Composable
+fun encuentra(placesClient: PlacesClient,placeId: String){
+    var lugarNombre by remember { mutableStateOf("") }
+    var lugarDireccion by remember { mutableStateOf("")}
 
+    // Define a Place ID.
+
+// Specify the fields to return.
+    val placeFields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS)
+
+// Construct a request object, passing the place ID and fields array.
+    val request = FetchPlaceRequest.newInstance(placeId, placeFields)
+
+    placesClient.fetchPlace(request)
+        .addOnSuccessListener { response: FetchPlaceResponse ->
+            val place = response.place
+            lugarNombre = place.name
+            lugarDireccion = place.address
+            Log.e(ContentValues.TAG,"Place found: ${place.name}")
+
+        }.addOnFailureListener { exception: Exception ->
+            if (exception is ApiException) {
+                Log.e("Busqueda", "Place not found: ${exception.message}")
+                val statusCode = exception.statusCode
+                TODO("Handle error with given status code")
+            }
+        }
+
+    Text(text = lugarNombre)
+    Text(text = lugarDireccion)
+
+
+}
