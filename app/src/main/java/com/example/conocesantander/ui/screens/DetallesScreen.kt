@@ -48,42 +48,37 @@ fun DetallesScreen(
     context: Context,
 
 
-    )
-{
+    ) {
     var conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
     val placeId = conoceSantanderViewModel.placeId
     val placeName = conoceSantanderViewModel.placeName
     val placeAddress = conoceSantanderViewModel.placeAddress
     val placeRating = conoceSantanderViewModel.placeRating
-    val placePhone = conoceSantanderViewModel.placePhone
-    val placeWebsite = conoceSantanderViewModel.placeWebsite
     val placeLat = conoceSantanderViewModel.latitude
     val placeLng = conoceSantanderViewModel.longitude
     val kmFromUser = conoceSantanderViewModel.kmFromUser
 
-
     conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
 
-    if (placeLat != null && placeLng != null && placeName != null) {
-        conoceSantanderViewModel.setLocation(placeLat, placeLng, placeName)
-    }
 
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
         //verticalArrangement = Arrangement.Center,
         //horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PhotoDetail(placeId = "$placeId", context = context)
-        Column (
+        Column(
             modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-        ){
+        ) {
             Spacer(modifier = Modifier.height(32.dp))
             Text(
                 text = "$placeName",
                 style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)
             )
+            Spacer(modifier = Modifier.height(12.dp))
             Row {
                 Text(
                     text = "$placeRating",
@@ -95,45 +90,47 @@ fun DetallesScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Dirección: $placeAddress"
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ){
-                Button(
-                    onClick = {
-                        navController.navigate(MyAppRoute.MAP)
-                    }
-                ) {
-                    Text(
-                        text = "Ver en mapa"
-                    )
-                }
-                Spacer(modifier = Modifier.width(32.dp))
-                Text(
-                    text = "A $kmFromUser metros"
-                )
-            }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "Datos de Contacto",
-                style = TextStyle(fontSize = 20.sp)
+                text = "Dirección:",
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
             )
-            Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Teléfono: $placePhone",
-                style = TextStyle(fontSize = 16.sp)
+                text = "   $placeAddress"
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Web: $placeWebsite",
-                style = TextStyle(fontSize = 16.sp)
+                text = "Distancia:",
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
             )
+            Text(
+                text = "   A $kmFromUser metros"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = {
+
+                    if (placeLat != null && placeLng != null && placeName != null) {
+                        conoceSantanderViewModel.setLocation(placeLat, placeLng, placeName)
+                    }
+                    navController.navigate(MyAppRoute.MAP)
+                }
+            ) {
+                Text(
+                    text = "Ver en mapa"
+                )
+            }
         }
     }
+
+
 }
 
 @Composable
