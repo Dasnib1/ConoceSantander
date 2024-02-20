@@ -94,7 +94,7 @@ fun HomeScreen(placesClient: PlacesClient, context: Context) {
             Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos")
         }
         Row{
-            Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
+            Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Cafeterias")
         }
     }
 }
