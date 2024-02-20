@@ -43,11 +43,6 @@ val DESTINATIONS= listOf(
         iconTextId = R.string.map
     ),
     Screens(
-        route = MyAppRoute.SEARCH,
-        selectedIcon = Icons.Filled.Search,
-        iconTextId = R.string.search
-    ),
-    Screens(
         route = MyAppRoute.FAVOURITES,
         selectedIcon = Icons.Filled.Favorite,
         iconTextId = R.string.favourites
@@ -63,7 +58,6 @@ val DESTINATIONS= listOf(
 object MyAppRoute {
     const val HOME = "home"
     const val MAP = "map"
-    const val SEARCH = "search"
     const val FAVOURITES = "favourites"
     const val ACCOUNT = "account"
 }

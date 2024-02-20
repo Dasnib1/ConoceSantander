@@ -1,5 +1,6 @@
 package com.example.conocesantander.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -14,6 +15,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +38,22 @@ import com.example.conocesantander.ui.MyAppRoute
 @Composable
 fun UserProfileScreen(navController: NavController){
     val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+    val (favoritosList, setFavoritosList) = remember { mutableStateOf<List<String>?>(null) }
+
+
+    LaunchedEffect(Unit) {
+        obtenerFavoritosDeUsuario(
+            successCallback = { favoritos ->
+                // La lista de favoritos se ha llenado correctamente
+                setFavoritosList(favoritos)
+            },
+            errorCallback = { errorMessage ->
+                // Manejar el error si ocurre alguno al obtener los favoritos
+                Log.e("Obtener favoritos", errorMessage)
+            }
+        )
+    }
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,9 +69,11 @@ fun UserProfileScreen(navController: NavController){
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Nº de favoritos: ¿?",
-        )
+        if (favoritosList != null) {
+            Text(
+                text = "Nº de favoritos: " + favoritosList.size.toString(),
+            )
+        }
         Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = {

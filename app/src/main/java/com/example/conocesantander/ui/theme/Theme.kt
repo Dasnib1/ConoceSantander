@@ -24,6 +24,7 @@ data class CustomColorsPalette(
     val restaurant: Color = Color.Unspecified,
     val museum: Color = Color.Unspecified,
     val park: Color = Color.Unspecified,
+    val tourist_attraction: Color = Color.Unspecified,
 )
 
 val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() }
@@ -31,14 +32,16 @@ val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() 
 
 val OnLightCustomColorsPalette = CustomColorsPalette(
     restaurant = Color(color = 0xFFF7AD9D),
-    museum = Color(color = 0xFF1E88E5),
-    park = Color(color = 0xFF43A047)
+    museum = Color(color = 0xFFA8F1F0),
+    park = Color(color = 0xFF9EEDA7),
+    tourist_attraction = Color(color = 0xFFDE9EED),
 )
 
 val OnDarkCustomColorsPalette = CustomColorsPalette(
-    restaurant = Color(color = 0xFFB63012),
-    museum = Color(color = 0xFF1A237E),
-    park = Color(color = 0xFF1B5E20)
+    restaurant = Color(color = 0xFF5d1607),
+    museum = Color(color = 0xFF0e5857),
+    park = Color(color = 0xFF0f5317),
+    tourist_attraction = Color(color = 0xFF460f53),
 )
 
 private val LightColors = lightColorScheme(

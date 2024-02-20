@@ -94,6 +94,14 @@ fun HomeScreen(placesClient: PlacesClient, context: Context, navController: NavC
                 navController
             )
         }
+        Row {
+            BusquedaLugares(
+                placeType = "tourist_attraction",
+                color = LocalCustomColorsPalette.current.tourist_attraction,
+                placeTypeName = "Atracciones turísticas",
+                navController
+            )
+        }
     }
 }
 
@@ -121,6 +129,7 @@ fun BusquedaLugares(
         try {
             val locationResult = fusedLocationProvider.lastLocation.await()
             location = locationResult
+
         } catch (e: Exception) {
             Log.e("MapScreen", "Error obtaining location: ${e.message}")
         }
@@ -253,7 +262,7 @@ fun LugarCard(
     Card(
         modifier = Modifier
             .padding(end = 8.dp)
-            .height(100.dp)
+            .height(120.dp)
             .fillMaxWidth(),
         onClick = {
             conoceSantanderViewModel.setPlace(
@@ -372,7 +381,7 @@ fun Photo(placeId: String, context: Context) {
         Image(
             bitmap = bitmap!!.asImageBitmap(),
             contentDescription = null,
-            modifier = Modifier.size(100.dp), // Adjust size as needed
+            modifier = Modifier.size(110.dp), // Adjust size as needed
             contentScale = ContentScale.Crop
         )
     }
