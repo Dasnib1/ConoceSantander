@@ -77,6 +77,7 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
 
+
     // Google Places
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.10"))
     implementation("com.google.android.libraries.places:places:3.3.0")
@@ -84,6 +85,7 @@ dependencies {
     //Busqueda de sitios cercanos
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
 
 
     testImplementation("junit:junit:4.13.2")

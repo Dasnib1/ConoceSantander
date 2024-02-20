@@ -1,112 +1,112 @@
 package com.example.conocesantander.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.ContentUris
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.location.Location
-import android.provider.ContactsContract
 import android.util.Log
-import android.widget.ImageView
-import android.widget.ScrollView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.BuildConfig
-import com.example.conocesantander.R
+import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.ui.classes.NearbySearchResponse
 import com.example.conocesantander.ui.classes.PlacesClient.create
-import com.example.conocesantander.ui.classes.Restaurant
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPhotoRequest
-import com.google.android.libraries.places.api.net.FetchPhotoResponse
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
-import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.PlacesClient
-import kotlinx.coroutines.Dispatchers
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.lang.Math.atan2
 import java.lang.Math.cos
-import java.lang.Math.round
 import java.lang.Math.sin
 import java.lang.Math.sqrt
 import java.util.concurrent.ExecutionException
 import kotlin.math.roundToInt
 
 @Composable
-fun HomeScreen(placesClient: PlacesClient, context: Context) {
+fun HomeScreen(placesClient: PlacesClient, context: Context, navController: NavController) {
 
-    //Photo(placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE", context)
-
-    Column (modifier = Modifier
-        .verticalScroll(rememberScrollState())
-        ) {
-        Row{
-            Encuentra3(placeType = "restaurant", color = LocalCustomColorsPalette.current.restaurant, placeTypeName ="Restaurantes")
-        }
-        Row{
-            Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos")
-        }
-        Row{
-            Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Cafeterias")
-        }
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+    ) {
+        Row {
+            BusquedaLugares(
+                placeType = "restaurant",
+                color = LocalCustomColorsPalette.current.restaurant,
+                placeTypeName = "Restaurantes",
+                navController
+            )
+        }/*
+Row{
+    Encuentra3(placeType = "museum", color = LocalCustomColorsPalette.current.museum, placeTypeName ="Museos", navController)
+}
+Row{
+    Encuentra3(placeType = "cafe", color = LocalCustomColorsPalette.current.park, placeTypeName = "Parques")
+}*/
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
-    var restaurantesCercanos by remember { mutableStateOf<List<Restaurant>?>(null) }
+fun BusquedaLugares(
+    placeType: String,
+    color: Color,
+    placeTypeName: String,
+    navController: NavController
+) {
+    var lugaresCercanos by remember {
+        mutableStateOf<List<com.example.conocesantander.ui.classes.Lugar>?>(
+            null
+        )
+    }
     val context = LocalContext.current
-    val fusedLocationProvider = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val fusedLocationProvider =
+        remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    // Define la ubicación del usuario (latitud y longitud)
+// Define la ubicación del usuario (latitud y longitud)
     var location: Location? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
@@ -118,38 +118,43 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
         }
     }
 
-    // Define el radio de búsqueda en metros
+// Define el radio de búsqueda en metros
     val radius = 1000
 
-    // Define el tipo de lugar (en este caso, restaurantes)
+// Define el tipo de lugar
     val type = placeType
 
-    // Realiza la llamada a la API para obtener los restaurantes cercanos cuando se obtenga la ubicación
+// Realiza la llamada a la API para obtener los lugares cercanos cuando se obtenga la ubicación
     LaunchedEffect(location) {
         location?.let { loc ->
-            fetchNearbyRestaurants(loc.latitude.toString() + "," + loc.longitude.toString(), radius, type) { nearbyRestaurants ->
-                restaurantesCercanos = nearbyRestaurants.sortedByDescending { it.rating ?: Float.MIN_VALUE }
-                    .take(3)
-
+            fetchNearbyPlaces(
+                loc.latitude.toString() + "," + loc.longitude.toString(),
+                radius,
+                type
+            ) { nearbyRestaurants ->
+                lugaresCercanos =
+                    nearbyRestaurants.sortedByDescending { it.rating ?: Float.MIN_VALUE }
+                        .take(1)
             }
         }
     }
 
-    // Muestra los restaurantes cercanos si están disponibles
-    restaurantesCercanos?.let { restaurantes ->
-        if (restaurantes.isNotEmpty()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .background(color = color)
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
+            Column {
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(color = color)
-                        .padding(16.dp)
-                ) {
-                    Column {
+                // Muestra los lugares cercanos si están disponibles
+                lugaresCercanos?.let { lugares ->
+                    if (lugares.isNotEmpty()) {
                         Text(
                             text = "Recomendaciones de " + placeTypeName,
                             style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
@@ -157,47 +162,60 @@ fun Encuentra3(placeType: String, color: Color,  placeTypeName: String) {
                         Spacer(modifier = Modifier.height(16.dp))
 
 
-                        restaurantes.forEach { restaurante ->
-                            Log.e("Place", restaurante.name)
+                        lugares.forEach { lugar ->
+                            Log.e("Place", lugar.name)
                             Row(modifier = Modifier.fillMaxWidth()) {
-                                RestaurantCard(
-                                    restaurante.name,
-                                    restaurante.vicinity,
-                                    restaurante.rating.toString(),
-                                    restaurante.place_id,
+                                LugarCard(
+                                    lugar.name,
+                                    lugar.vicinity,
+                                    lugar.rating.toString(),
+                                    lugar.place_id,
+                                    lugar.phoneNumber ?: "Número no disponible",
+                                    lugar.website ?:"No disponible",
                                     context,
-                                    calcularDistancia(location!!.latitude,
-                                        location!!.longitude,restaurante.geometry.location.lat,restaurante.geometry.location.lng
-                                    )
+                                    calcularDistancia(
+                                        location!!.latitude,
+                                        location!!.longitude,
+                                        lugar.geometry.location.lat,
+                                        lugar.geometry.location.lng
+                                    ),
+                                    lugar.geometry.location.lat.toString(),
+                                    lugar.geometry.location.lng.toString(),
+                                    navController
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-
                         }
+                    } else {
+                        Text(
+                            text = "No hay " + placeTypeName + " cercanos",
+                            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                        )
                     }
                 }
             }
-
-        } else {
-            Text(text = "No se encontraron restaurantes cercanos")
         }
     }
 }
-fun fetchNearbyRestaurants(
+
+fun fetchNearbyPlaces(
     location: String,
     radius: Int,
     type: String,
-    onSuccess: (List<Restaurant>) -> Unit
+    onSuccess: (List<com.example.conocesantander.ui.classes.Lugar>) -> Unit
 ) {
     val service = create()
     val apiKey = BuildConfig.PLACES_API_KEY // Reemplaza con tu clave de API de Google Places
 
-    val call = service.getNearbyRestaurants(location, radius, type, apiKey)
+    val call = service.getNearbyLugares(location, radius, type, apiKey)
     call.enqueue(object : Callback<NearbySearchResponse> {
-        override fun onResponse(call: Call<NearbySearchResponse>, response: Response<NearbySearchResponse>) {
+        override fun onResponse(
+            call: Call<NearbySearchResponse>,
+            response: Response<NearbySearchResponse>
+        ) {
             if (response.isSuccessful) {
-                val nearbyRestaurants = response.body()?.results
-                nearbyRestaurants?.let {
+                val nearbyPlaces = response.body()?.results
+                nearbyPlaces?.let {
                     onSuccess(it)
                 }
             } else {
@@ -210,50 +228,53 @@ fun fetchNearbyRestaurants(
         }
     })
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun encuentra(placesClient: PlacesClient){
-    var lugarNombre by remember { mutableStateOf("") }
-    var lugarDireccion by remember { mutableStateOf("")}
+fun LugarCard(
+    placeName: String,
+    placeAdress: String,
+    placeRating: String,
+    placeId: String,
+    placePhone: String?,
+    placeWebsite: String?,
+    context: Context,
+    kmFromUser: Int,
+    placeLat: String,
+    placeLng: String,
+    navController: NavController
+) {
+    val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
 
-    // Define a Place ID.
-    val placeId = "ChIJ3S-JXmauEmsRUcIaWtf4MzE"
-
-// Specify the fields to return.
-    val placeFields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS)
-
-// Construct a request object, passing the place ID and fields array.
-    val request = FetchPlaceRequest.newInstance(placeId, placeFields)
-
-    placesClient.fetchPlace(request)
-        .addOnSuccessListener { response: FetchPlaceResponse ->
-            val place = response.place
-            lugarNombre = place.name
-            lugarDireccion = place.address
-            Log.e(ContentValues.TAG,"Place found: ${place.name}")
-
-        }.addOnFailureListener { exception: Exception ->
-            if (exception is ApiException) {
-                Log.e("Busqueda", "Place not found: ${exception.message}")
-                val statusCode = exception.statusCode
-                TODO("Handle error with given status code")
-            }
-        }
-
-    Text(text = lugarNombre)
-    Text(text = lugarDireccion)
-
-
-}
-
-
-@Composable
-fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String, placeId: String, context: Context, kmFromUser: Int) {
     Card(
         modifier = Modifier
             .padding(end = 8.dp)
             .height(100.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        onClick = {
+            conoceSantanderViewModel.setPlace(
+                placeId,
+                placeName,
+                placeAdress,
+                placeRating,
+                placePhone,
+                placeWebsite,
+                placeLat.toDouble(),
+                placeLng.toDouble(),
+                kmFromUser
+            )
+            navController.navigate("detallesScreen")
+        }
     ) {
+        val esFavorito = remember { mutableStateOf(false) }
+
+        // Función para cambiar el estado de favorito/no favorito y manejar la lógica de clic
+        fun Favorito() {
+            guardarLugarFavoritoEnFirebase(placeId,esFavorito)
+        }
+        fun eliminarFavorito() {
+            eliminarLugarDeFavoritosEnFirebase(placeId,esFavorito)
+        }
         Row(
             modifier = Modifier
                 .padding(8.dp)
@@ -288,19 +309,28 @@ fun RestaurantCard(placeName: String, placeAdress: String, placeRating: String, 
                     Spacer(modifier = Modifier.width(16.dp))
 
                     Text(
-                        text = kmFromUser.toString() +" metros",
+                        text = kmFromUser.toString() + " metros",
                         style = TextStyle(fontSize = 12.sp)
                     )
                 }
 
             }
             Spacer(modifier = Modifier.width(4.dp))
-            Icon(
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                tint = Color.Red,
-                modifier = Modifier.size(16.dp)
-            )
+            esLugarFavoritoEnFirebase(placeId,esFavorito)
+            if (esFavorito.value) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorito",
+                    tint = Color.Red,
+                    modifier = Modifier.clickable(onClick = { eliminarFavorito() })
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.FavoriteBorder,
+                    contentDescription = "No favorito",
+                    modifier = Modifier.clickable(onClick = { Favorito() })
+                )
+            }
             Spacer(modifier = Modifier.width(8.dp))
 
         }
@@ -345,6 +375,7 @@ fun Photo(placeId: String, context: Context) {
         )
     }
 }
+
 fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Int {
     val R = 6371
 
@@ -358,3 +389,106 @@ fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): I
 
     return (distance * 1000).roundToInt()
 }
+
+fun guardarLugarFavoritoEnFirebase(
+    placeId: String,
+    setEsFavorito: MutableState<Boolean>
+) {
+    // Verificar si el usuario ha iniciado sesión
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
+
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = conoceSantanderViewModel.currentUser
+
+    if (currentUser != null) {
+        val userId = conoceSantanderViewModel.userId
+        val db = FirebaseFirestore.getInstance()
+        val lugaresFavoritosRef = userId?.let {
+            db.collection("usuarios").document(it)
+                .collection("favoritos")
+        }
+
+        lugaresFavoritosRef?.add(mapOf("id" to placeId))?.addOnSuccessListener {
+            Log.d("guardarLugarFavorito", "Lugar favorito agregado con éxito.")
+            setEsFavorito.value = true
+        }?.addOnFailureListener { e ->
+            Log.e("guardarLugarFavorito", "Error al agregar el lugar favorito: $e")
+            setEsFavorito.value = false
+        }
+    } else {
+        Log.e("guardarLugarFavorito", "El usuario no ha iniciado sesión.")
+        setEsFavorito.value = false
+    }
+}
+fun eliminarLugarDeFavoritosEnFirebase(
+    placeId: String,
+    setEsFavorito: MutableState<Boolean>
+) {
+    // Verificar si el usuario ha iniciado sesión
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = conoceSantanderViewModel.currentUser
+
+    if (currentUser != null) {
+        val userId = conoceSantanderViewModel.userId
+        val db = FirebaseFirestore.getInstance()
+        val lugaresFavoritosRef = userId?.let {
+            db.collection("usuarios").document(it)
+                .collection("favoritos")
+        }
+
+        // Buscar el documento que contiene el lugar a eliminar
+        lugaresFavoritosRef?.whereEqualTo("id", placeId)?.get()
+            ?.addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    // Eliminar el documento encontrado
+                    document.reference.delete()
+                        .addOnSuccessListener {
+                            Log.d("eliminarLugarDeFavoritos", "Lugar eliminado de favoritos con éxito.")
+                            setEsFavorito.value = false
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("eliminarLugarDeFavoritos", "Error al eliminar el lugar de favoritos: $e")
+                            setEsFavorito.value = true
+                        }
+                }
+            }?.addOnFailureListener { e ->
+            Log.e("eliminarLugarDeFavoritos", "Error al buscar el lugar de favoritos: $e")
+            setEsFavorito.value = true
+        }
+    } else {
+        Log.e("eliminarLugarDeFavoritos", "El usuario no ha iniciado sesión.")
+        setEsFavorito.value = true
+    }
+}
+fun esLugarFavoritoEnFirebase(
+    placeId: String,
+    esFavorito: MutableState<Boolean>
+) {
+    // Verificar si el usuario ha iniciado sesión
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = conoceSantanderViewModel.currentUser
+
+    if (currentUser != null) {
+        val userId = conoceSantanderViewModel.userId
+        val db = FirebaseFirestore.getInstance()
+        val lugaresFavoritosRef = userId?.let {
+            db.collection("usuarios").document(it)
+                .collection("favoritos")
+        }
+
+        lugaresFavoritosRef?.whereEqualTo("id", placeId)?.get()?.addOnSuccessListener { documents ->
+            // Si hay algún documento que coincide con el ID del lugar, entonces está en favoritos
+            esFavorito.value = !documents.isEmpty
+        }?.addOnFailureListener { e ->
+            Log.e("esLugarFavorito", "Error al verificar si el lugar es favorito: $e")
+            esFavorito.value = false // Supongamos que no está en favoritos en caso de error
+        }
+    } else {
+        Log.e("esLugarFavorito", "El usuario no ha iniciado sesión.")
+        esFavorito.value = false // Supongamos que no está en favoritos si el usuario no ha iniciado sesión
+    }
+}
+
+

@@ -1,5 +1,7 @@
 package com.example.conocesantander.ui.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,16 +42,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.conocesantander.R
+import com.example.conocesantander.ui.ConoceSantanderViewModel
+import com.example.conocesantander.ui.MyAppRoute
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.tasks.await
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountScreen(){
+fun AccountScreen(navController: NavController){
     var username by remember { mutableStateOf("yourname@email.com") }
     var password by remember { mutableStateOf("abc123") }
-
+    val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+    lateinit var context: Context
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -70,7 +78,18 @@ fun AccountScreen(){
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(onClick = {
-            signUp(username, password)
+            signUp(username, password,
+                {
+                    // En caso de éxito, cambia a otra pantalla
+                    conoceSantanderViewModel.updateUserName(username)
+                    conoceSantanderViewModel.setUserSignIn(true)
+                    navController.navigate(MyAppRoute.ACCOUNT)
+
+                },
+                { errorMessage ->
+                    // En caso de error, muestra un mensaje al usuario
+                    }
+            )
         }) {
             Text("Registro")
         }
@@ -80,20 +99,68 @@ fun AccountScreen(){
         Text(text = "-- O --", modifier = Modifier.padding(vertical = 8.dp)) // Espaciado uniforme
 
         Button(onClick = {
-            // Lógica para el botón de inicio de sesión con credenciales guardadas
+            signIn(username, password,
+                            {
+                               // En caso de éxito, cambia a otra pantalla
+                                conoceSantanderViewModel.updateUserName(username)
+                                conoceSantanderViewModel.setUserSignIn(true)
+                                navController.navigate(MyAppRoute.ACCOUNT)
+                            },
+                           { errorMessage ->
+                                // En caso de error, muestra un mensaje al usuario
+                           }
+                        )
+
+
         }) {
-            Text("Iniciar Sesión con Credenciales Guardadas")
+            Text("Inicio Sesión")
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Button(onClick = {
+
+        }) {
+            Text("Inicio Sesión con Credenciales Guardadas")
+        }
+
     }
 }
-fun signUp(email: String, password: String) {
-    try {
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-        // El usuario se ha registrado correctamente
-    } catch (e: Exception) {
-        // Manejar errores durante el registro
-        println("Error al registrar al usuario: ${e.message}")
-    }
+fun signUp(email: String, password: String, successCallback: () -> Unit, errorCallback: (String) -> Unit) {
+    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
+    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener { signUpTask ->
+            if (signUpTask.isSuccessful) {
+                FirebaseAuth.getInstance().currentUser?.let {
+                    conoceSantanderViewModel.updateUserId(it.uid)
+                    conoceSantanderViewModel.updateCurrentUser(FirebaseAuth.getInstance().currentUser)
+                }
+                successCallback.invoke()
+            } else {
+                // Error al registrar
+                val errorMessage = signUpTask.exception?.message ?: "Error desconocido al registrar"
+                errorCallback.invoke(errorMessage)
+            }
+        }
+}
+
+fun signIn(email: String, password: String, successCallback: () -> Unit, errorCallback: (String) -> Unit) {
+    val conoceSantanderViewModel =  ConoceSantanderViewModel.getInstance()
+
+    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                FirebaseAuth.getInstance().currentUser?.let {
+                    conoceSantanderViewModel.updateUserId(
+                        it.uid)
+                    conoceSantanderViewModel.updateCurrentUser(FirebaseAuth.getInstance().currentUser)
+                }
+                successCallback.invoke()
+            } else {
+                // Error al iniciar sesión
+                errorCallback.invoke("Error al iniciar sesión: ${task.exception?.message}")
+            }
+        }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -5,20 +5,31 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.ui.classes.Favorito
 import com.example.conocesantander.ui.classes.obtenerFavoritosDelUsuario
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun FavouriteScreen(){
+    val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
+    val isSignedIn = conoceSantanderViewModel.userSignIn
+        
+    
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Text(text = "Favs")
+        if (isSignedIn == true){
+            //TODO hacer implementar logica de favoritos
+            Text(text = "Favs")
+        } else{
+            Text(text = "Inicia Sesión para añadir tus sitios favoritos")
+        }
         /*val userId = FirebaseAuth.getInstance().currentUser?.uid
 
 // Llama a la función para obtener los favoritos del usuario
