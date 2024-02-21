@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import com.example.conocesantander.R
 import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.classes.MyAppRoute
+import com.example.conocesantander.classes.obtenerFavoritosDeUsuario
 
 @Composable
 fun UserProfileScreen(navController: NavController){

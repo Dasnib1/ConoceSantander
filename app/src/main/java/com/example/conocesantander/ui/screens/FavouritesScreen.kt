@@ -41,12 +41,15 @@ import androidx.navigation.NavController
 import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.classes.MyAppRoute
+import com.example.conocesantander.classes.eliminarLugarDeFavoritosEnFirebase
+import com.example.conocesantander.classes.esLugarFavoritoEnFirebase
+import com.example.conocesantander.classes.guardarLugarFavoritoEnFirebase
+import com.example.conocesantander.classes.obtenerFavoritosDeUsuario
 import com.google.android.gms.common.api.ApiException
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun FavouriteScreen(placesClient: PlacesClient, context: Context, navController: NavController) {
@@ -115,41 +118,6 @@ fun FavouriteScreen(placesClient: PlacesClient, context: Context, navController:
     }
 
 
-}
-
-fun obtenerFavoritosDeUsuario(
-    successCallback: (List<String>) -> Unit,
-    errorCallback: (String) -> Unit
-) {
-    val conoceSantanderViewModel = ConoceSantanderViewModel.getInstance()
-    val currentUser = conoceSantanderViewModel.currentUser
-
-    if (currentUser != null) {
-        val userId = conoceSantanderViewModel.userId
-        val db = FirebaseFirestore.getInstance()
-        val lugaresFavoritosRef = userId?.let {
-            db.collection("usuarios").document(it)
-                .collection("favoritos")
-        }
-
-        lugaresFavoritosRef?.get()
-            ?.addOnSuccessListener { documents ->
-                val favoritos = mutableListOf<String>()
-                for (document in documents) {
-                    val lugarId = document.getString("id")
-                    lugarId?.let { favoritos.add(it) }
-                }
-                // Llamar al callback de éxito con la lista de favoritos obtenida
-                successCallback(favoritos)
-            }
-            ?.addOnFailureListener { e ->
-                // Llamar al callback de error si ocurre un error al obtener los favoritos
-                errorCallback("Error al obtener los favoritos: ${e.message}")
-            }
-    } else {
-        // Manejar el caso en que el usuario no esté autenticado
-        errorCallback("El usuario no está autenticado")
-    }
 }
 
 @Composable
