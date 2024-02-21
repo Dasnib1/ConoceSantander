@@ -39,7 +39,6 @@ import com.example.conocesantander.ui.screens.DetallesScreen
 import com.example.conocesantander.ui.screens.FavouriteScreen
 import com.example.conocesantander.ui.screens.HomeScreen
 import com.example.conocesantander.ui.screens.MapScreen
-import com.example.conocesantander.ui.screens.SearchScreen
 import com.example.conocesantander.ui.screens.UserProfileScreen
 import com.google.android.libraries.places.api.net.PlacesClient
 
@@ -106,11 +105,8 @@ fun MyAppContent(
                     composable(MyAppRoute.MAP) {
                         MapScreen()
                     }
-                    composable(MyAppRoute.SEARCH) {
-                        SearchScreen()
-                    }
                     composable(MyAppRoute.FAVOURITES) {
-                        FavouriteScreen(placesClient)
+                        FavouriteScreen(placesClient, context, navController)
                     }
                     composable(MyAppRoute.ACCOUNT) {
                         val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }

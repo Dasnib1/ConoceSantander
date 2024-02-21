@@ -47,15 +47,13 @@ import com.example.conocesantander.R
 import com.example.conocesantander.ui.ConoceSantanderViewModel
 import com.example.conocesantander.ui.MyAppRoute
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(navController: NavController){
-    var username by remember { mutableStateOf("yourname@email.com") }
-    var password by remember { mutableStateOf("abc123") }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
     lateinit var context: Context
     Column(
@@ -96,8 +94,6 @@ fun AccountScreen(navController: NavController){
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        Text(text = "-- O --", modifier = Modifier.padding(vertical = 8.dp)) // Espaciado uniforme
-
         Button(onClick = {
             signIn(username, password,
                             {
@@ -114,14 +110,6 @@ fun AccountScreen(navController: NavController){
 
         }) {
             Text("Inicio Sesión")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(onClick = {
-
-        }) {
-            Text("Inicio Sesión con Credenciales Guardadas")
         }
 
     }

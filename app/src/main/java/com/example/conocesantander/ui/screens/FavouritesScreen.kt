@@ -1,8 +1,8 @@
 package com.example.conocesantander.ui.screens
 
-import android.content.ContentValues
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,9 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -39,7 +38,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.ui.ConoceSantanderViewModel
+import com.example.conocesantander.ui.MyAppRoute
 import com.google.android.gms.common.api.ApiException
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
@@ -48,7 +49,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun FavouriteScreen(placesClient: PlacesClient){
+fun FavouriteScreen(placesClient: PlacesClient, context: Context, navController: NavController) {
     val (favoritosList, setFavoritosList) = remember { mutableStateOf<List<String>?>(null) }
     val conoceSantanderViewModel = remember { ConoceSantanderViewModel.getInstance() }
     val isSignedIn = conoceSantanderViewModel.userSignIn
@@ -65,31 +66,57 @@ fun FavouriteScreen(placesClient: PlacesClient){
         )
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
 
-    ){
-        if (isSignedIn == true) {
-            if (!favoritosList.isNullOrEmpty()) {
+    if (isSignedIn == true) {
+        if (!favoritosList.isNullOrEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Tus lugares favoritos",
+                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                )
+                Spacer(modifier = Modifier.height(20.dp))
                 // Mostrar la lista de favoritos
-                LazyColumn {
-                    items(favoritosList) { favorito ->
-                        encuentra(placesClient = placesClient, placeId =favorito )
-                    }
+                favoritosList.forEach { favorito ->
+                    LugarPorId(
+                        placesClient = placesClient,
+                        context = context,
+                        placeId = favorito,
+                        navController = navController
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
+            }
 
-            } else {
-                // Mostrar un mensaje indicando que no hay favoritos
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text("No hay favoritos", textAlign = TextAlign.Center)
             }
-        } else {
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text("Inicia Sesión para añadir tus sitios favoritos")
         }
-
     }
+
+
 }
+
 fun obtenerFavoritosDeUsuario(
     successCallback: (List<String>) -> Unit,
     errorCallback: (String) -> Unit
@@ -124,15 +151,23 @@ fun obtenerFavoritosDeUsuario(
         errorCallback("El usuario no está autenticado")
     }
 }
+
 @Composable
-fun encuentra(placesClient: PlacesClient,placeId: String){
-    var lugarNombre by remember { mutableStateOf("") }
-    var lugarDireccion by remember { mutableStateOf("")}
+fun LugarPorId(
+    placesClient: PlacesClient,
+    context: Context,
+    placeId: String,
+    navController: NavController
+) {
+    var placeName by remember { mutableStateOf("") }
+    var placeAddress by remember { mutableStateOf("") }
+    var placeType by remember { mutableStateOf("") }
 
     // Define a Place ID.
 
 // Specify the fields to return.
-    val placeFields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS)
+    val placeFields =
+        listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES)
 
 // Construct a request object, passing the place ID and fields array.
     val request = FetchPlaceRequest.newInstance(placeId, placeFields)
@@ -140,10 +175,9 @@ fun encuentra(placesClient: PlacesClient,placeId: String){
     placesClient.fetchPlace(request)
         .addOnSuccessListener { response: FetchPlaceResponse ->
             val place = response.place
-            lugarNombre = place.name
-            lugarDireccion = place.address
-            Log.e(ContentValues.TAG,"Place found: ${place.name}")
-
+            placeName = place.name
+            placeAddress = place.address
+            placeType = place.placeTypes?.firstOrNull() ?: "No disponible"
         }.addOnFailureListener { exception: Exception ->
             if (exception is ApiException) {
                 Log.e("Busqueda", "Place not found: ${exception.message}")
@@ -152,8 +186,97 @@ fun encuentra(placesClient: PlacesClient,placeId: String){
             }
         }
 
-    Text(text = lugarNombre)
-    Text(text = lugarDireccion)
+    LugarCard(
+        placeName = placeName,
+        placeAdress = placeAddress,
+        placeId = placeId,
+        placeType = placeType,
+        context = context,
+        navController = navController
+    )
+
+}
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LugarCard(
+    placeName: String,
+    placeAdress: String,
+    placeId: String,
+    placeType: String,
+    context: Context,
+    navController: NavController
+) {
+    val typeToColorMap = mapOf(
+        "restaurant" to LocalCustomColorsPalette.current.restaurant,
+        "museum" to LocalCustomColorsPalette.current.museum,
+        "park" to LocalCustomColorsPalette.current.park,
+        "tourist_attraction" to LocalCustomColorsPalette.current.tourist_attraction
+    )
+    val borderColor = typeToColorMap[placeType] ?: Color.Gray
+
+
+    Card(
+
+        modifier = Modifier
+            .padding(start = 12.dp, end = 12.dp)
+            .height(100.dp)
+            .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(8.dp))
+            .fillMaxWidth(),
+    ) {
+        val esFavorito = remember { mutableStateOf(false) }
+        fun Favorito() {
+            guardarLugarFavoritoEnFirebase(placeId, esFavorito)
+        }
+
+        fun eliminarFavorito() {
+            eliminarLugarDeFavoritosEnFirebase(placeId, esFavorito)
+        }
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Photo(placeId, context)
+            Spacer(modifier = Modifier.width(8.dp))
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = placeName,
+                    style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = placeAdress,
+                    style = TextStyle(fontSize = 12.sp)
+                )
+
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            esLugarFavoritoEnFirebase(placeId, esFavorito)
+            if (esFavorito.value) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorito",
+                    tint = Color.Red,
+                    modifier = Modifier.clickable
+                        (onClick = {
+                        eliminarFavorito()
+                        navController.navigate(MyAppRoute.FAVOURITES)
+                    })
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.FavoriteBorder,
+                    contentDescription = "No favorito",
+                    modifier = Modifier.clickable(onClick = { Favorito() })
+                )
+            }
+        }
+    }
 }
