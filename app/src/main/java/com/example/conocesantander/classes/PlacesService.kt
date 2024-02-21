@@ -1,4 +1,4 @@
-package com.example.conocesantander.ui.classes
+package com.example.conocesantander.classes
 
 import retrofit2.Call
 import retrofit2.http.GET

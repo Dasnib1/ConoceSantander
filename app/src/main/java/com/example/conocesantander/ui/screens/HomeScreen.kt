@@ -41,9 +41,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.BuildConfig
+import com.example.conocesantander.classes.Lugar
 import com.example.conocesantander.ui.ConoceSantanderViewModel
-import com.example.conocesantander.ui.classes.NearbySearchResponse
-import com.example.conocesantander.ui.classes.PlacesClient.create
+import com.example.conocesantander.classes.NearbySearchResponse
+import com.example.conocesantander.classes.PlacesClient.create
 import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -114,7 +115,7 @@ fun BusquedaLugares(
     navController: NavController
 ) {
     var lugaresCercanos by remember {
-        mutableStateOf<List<com.example.conocesantander.ui.classes.Lugar>?>(
+        mutableStateOf<List<Lugar>?>(
             null
         )
     }
@@ -217,7 +218,7 @@ fun fetchNearbyPlaces(
     location: String,
     radius: Int,
     type: String,
-    onSuccess: (List<com.example.conocesantander.ui.classes.Lugar>) -> Unit
+    onSuccess: (List<Lugar>) -> Unit
 ) {
     val service = create()
     val apiKey = BuildConfig.PLACES_API_KEY // Reemplaza con tu clave de API de Google Places

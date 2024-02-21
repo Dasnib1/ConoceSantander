@@ -1,4 +1,4 @@
-package com.example.conocesantander.ui.classes
+package com.example.conocesantander.classes
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

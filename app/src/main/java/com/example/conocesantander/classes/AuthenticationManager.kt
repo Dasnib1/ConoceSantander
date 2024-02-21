@@ -1,4 +1,4 @@
-package com.example.conocesantander.ui.classes
+package com.example.conocesantander.classes
 
 import android.app.Activity
 import android.widget.Toast

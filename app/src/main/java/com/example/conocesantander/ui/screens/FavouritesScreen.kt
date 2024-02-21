@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.compose.LocalCustomColorsPalette
 import com.example.conocesantander.ui.ConoceSantanderViewModel
-import com.example.conocesantander.ui.MyAppRoute
+import com.example.conocesantander.classes.MyAppRoute
 import com.google.android.gms.common.api.ApiException
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest

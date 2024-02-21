@@ -1,4 +1,4 @@
-package com.example.conocesantander.ui.classes
+package com.example.conocesantander.classes
 
 import com.google.android.libraries.places.api.model.OpeningHours
 

@@ -1,4 +1,4 @@
-package com.example.conocesantander.ui.classes
+package com.example.conocesantander.classes
 
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth

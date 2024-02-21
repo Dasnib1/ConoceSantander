@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.conocesantander.R
 import com.example.conocesantander.ui.ConoceSantanderViewModel
-import com.example.conocesantander.ui.MyAppRoute
+import com.example.conocesantander.classes.MyAppRoute
 
 @Composable
 fun UserProfileScreen(navController: NavController){

@@ -1,4 +1,4 @@
-package com.example.conocesantander.ui
+package com.example.conocesantander.ui.screens
 
 import android.content.Context
 import androidx.compose.foundation.Image
@@ -34,12 +34,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.conocesantander.R
-import com.example.conocesantander.ui.screens.AccountScreen
-import com.example.conocesantander.ui.screens.DetallesScreen
-import com.example.conocesantander.ui.screens.FavouriteScreen
-import com.example.conocesantander.ui.screens.HomeScreen
-import com.example.conocesantander.ui.screens.MapScreen
-import com.example.conocesantander.ui.screens.UserProfileScreen
+import com.example.conocesantander.ui.ConoceSantanderViewModel
+import com.example.conocesantander.classes.DESTINATIONS
+import com.example.conocesantander.classes.MyAppRoute
+import com.example.conocesantander.classes.NavigationActions
+import com.example.conocesantander.classes.Screens
 import com.google.android.libraries.places.api.net.PlacesClient
 
 
@@ -94,7 +93,7 @@ fun MyAppContent(
                         .weight(1f)
                         .padding(innerPadding),
                     navController = navController,
-                    startDestination = MyAppRoute.HOME,
+                    startDestination = MyAppRoute.MAP,
                 ) {
                     composable(MyAppRoute.HOME) {
                         HomeScreen(placesClient, context, navController)
